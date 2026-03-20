@@ -148,7 +148,7 @@ function analyzeSemantics(statement, symbolTable, classTable) {
     };
     const fail = () => ({ ok: false, diagnostics, actions, symbolTable: table, classTable: classes });
     const succeed = () => ({ ok: true, diagnostics, actions, symbolTable: table, classTable: classes });
-    const analyzeStatement = (s) => {
+    const analyzeStatement = (s, scopeLevel = 0) => {
         switch (s.kind) {
             case 'AssignmentStatement': {
                 const declaredType = s.dataType;
@@ -168,7 +168,7 @@ function analyzeSemantics(statement, symbolTable, classTable) {
                         errorAt(expressionToken(expr), `Redeclaration error: '${name}' was previously '${existing.type}' and cannot be redeclared as '${declaredType}'.`);
                         return false;
                     }
-                    const bind = table.bind(name, declaredType, String(evaluated));
+                    const bind = table.bind(name, declaredType, String(evaluated), scopeLevel);
                     actions.push({ kind: 'bind', action: bind.action, entry: bind.entry });
                     return true;
                 }
@@ -214,7 +214,7 @@ function analyzeSemantics(statement, symbolTable, classTable) {
                     errorAt(valueToken, `Redeclaration error: '${name}' was previously '${existing.type}' and cannot be redeclared as '${declaredType}'.`);
                     return false;
                 }
-                const bind = table.bind(name, declaredType, effectiveValue);
+                const bind = table.bind(name, declaredType, effectiveValue, scopeLevel);
                 actions.push({ kind: 'bind', action: bind.action, entry: bind.entry });
                 return true;
             }
@@ -246,7 +246,7 @@ function analyzeSemantics(statement, symbolTable, classTable) {
                 if (left === null || right === null)
                     return false;
                 for (const inner of s.body) {
-                    if (!analyzeStatement(inner))
+                    if (!analyzeStatement(inner, scopeLevel + 1))
                         return false;
                 }
                 return true;
@@ -321,7 +321,7 @@ function analyzeSemantics(statement, symbolTable, classTable) {
             }
         }
     };
-    const ok = analyzeStatement(statement);
+    const ok = analyzeStatement(statement, 0);
     if (!ok)
         return fail();
     return succeed();

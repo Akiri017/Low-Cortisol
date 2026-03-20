@@ -20,7 +20,7 @@ class SymbolTable {
     entries() {
         return Array.from(this.symbols.values()).sort((a, b) => a.offset - b.offset);
     }
-    bind(name, type, value) {
+    bind(name, type, value, level = 0) {
         const existing = this.symbols.get(name);
         if (existing) {
             const updated = { ...existing, value };
@@ -32,7 +32,7 @@ class SymbolTable {
             name,
             type,
             width,
-            level: 0,
+            level,
             offset: this.nextOffset,
             value,
         };

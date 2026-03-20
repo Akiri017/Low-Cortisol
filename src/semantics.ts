@@ -184,7 +184,7 @@ export function analyzeSemantics(statement: Statement, symbolTable?: SymbolTable
   const fail = (): SemanticFailure => ({ ok: false, diagnostics, actions, symbolTable: table, classTable: classes });
   const succeed = (): SemanticSuccess => ({ ok: true, diagnostics, actions, symbolTable: table, classTable: classes });
 
-  const analyzeStatement = (s: Statement): boolean => {
+  const analyzeStatement = (s: Statement, scopeLevel = 0): boolean => {
     switch (s.kind) {
       case 'AssignmentStatement': {
         const declaredType = s.dataType;
@@ -210,7 +210,7 @@ export function analyzeSemantics(statement: Statement, symbolTable?: SymbolTable
         return false;
       }
 
-      const bind = table.bind(name, declaredType, String(evaluated));
+      const bind = table.bind(name, declaredType, String(evaluated), scopeLevel);
       actions.push({ kind: 'bind', action: bind.action, entry: bind.entry });
       return true;
     }
@@ -264,7 +264,7 @@ export function analyzeSemantics(statement: Statement, symbolTable?: SymbolTable
       return false;
     }
 
-    const bind = table.bind(name, declaredType, effectiveValue);
+    const bind = table.bind(name, declaredType, effectiveValue, scopeLevel);
     actions.push({ kind: 'bind', action: bind.action, entry: bind.entry });
     return true;
       }
@@ -300,7 +300,7 @@ export function analyzeSemantics(statement: Statement, symbolTable?: SymbolTable
         if (left === null || right === null) return false;
 
         for (const inner of s.body) {
-          if (!analyzeStatement(inner)) return false;
+          if (!analyzeStatement(inner, scopeLevel + 1)) return false;
         }
         return true;
       }
@@ -384,7 +384,7 @@ export function analyzeSemantics(statement: Statement, symbolTable?: SymbolTable
     }
   };
 
-  const ok = analyzeStatement(statement);
+  const ok = analyzeStatement(statement, 0);
   if (!ok) return fail();
   return succeed();
   }

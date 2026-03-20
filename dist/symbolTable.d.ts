@@ -13,7 +13,7 @@ export declare class SymbolTable {
     private nextOffset;
     get(name: string): SymbolEntry | undefined;
     entries(): SymbolEntry[];
-    bind(name: string, type: DataTypeLexeme, value: string): {
+    bind(name: string, type: DataTypeLexeme, value: string, level?: number): {
         action: BindAction;
         entry: SymbolEntry;
     };

@@ -32,7 +32,7 @@ export class SymbolTable {
     return Array.from(this.symbols.values()).sort((a, b) => a.offset - b.offset);
   }
 
-  bind(name: string, type: DataTypeLexeme, value: string): { action: BindAction; entry: SymbolEntry } {
+  bind(name: string, type: DataTypeLexeme, value: string, level = 0): { action: BindAction; entry: SymbolEntry } {
     const existing = this.symbols.get(name);
     if (existing) {
       const updated: SymbolEntry = { ...existing, value };
@@ -45,7 +45,7 @@ export class SymbolTable {
       name,
       type,
       width,
-      level: 0,
+      level,
       offset: this.nextOffset,
       value,
     };
