@@ -1,6 +1,61 @@
 // StardewIDE Application Logic
 let currentView = 'ide';
 let compileResults = null;
+const MOTION_CONFIG = {
+  staggerDelayMs: 45,
+  maxAnimatedElements: 12,
+  refreshClass: 'motion-refresh',
+  staggerClass: 'motion-stagger'
+};
+
+function prefersReducedMotion() {
+  return window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+}
+
+function applyPanelRefresh(element) {
+  if (!element || prefersReducedMotion()) return;
+  element.classList.remove(MOTION_CONFIG.refreshClass);
+  // Force reflow so repeated updates retrigger refresh animation.
+  void element.offsetWidth;
+  element.classList.add(MOTION_CONFIG.refreshClass);
+}
+
+function applyStaggeredReveal(elements) {
+  if (!elements || elements.length === 0 || prefersReducedMotion()) return;
+
+  const boundedElements = Array.from(elements).slice(0, MOTION_CONFIG.maxAnimatedElements);
+  boundedElements.forEach((element, index) => {
+    element.classList.remove(MOTION_CONFIG.staggerClass);
+    element.style.animationDelay = `${index * MOTION_CONFIG.staggerDelayMs}ms`;
+    element.classList.add(MOTION_CONFIG.staggerClass);
+  });
+}
+
+function transitionIntoView(selectedView) {
+  if (!selectedView || prefersReducedMotion()) return;
+  selectedView.classList.add('motion-view-enter');
+  requestAnimationFrame(() => {
+    selectedView.classList.add('motion-view-enter-active');
+    selectedView.classList.remove('motion-view-enter');
+  });
+  setTimeout(() => {
+    selectedView.classList.remove('motion-view-enter-active');
+  }, 260);
+}
+
+function updateCompileButtonState(isCompiling) {
+  const compileBtn = document.getElementById('compileBtn');
+  if (!compileBtn) return;
+
+  if (isCompiling) {
+    compileBtn.classList.add('compiling');
+    compileBtn.textContent = 'Compiling...';
+    return;
+  }
+
+  compileBtn.classList.remove('compiling');
+  compileBtn.textContent = 'Compile Code';
+}
 
 // Navigation
 function switchView(viewName) {
@@ -15,6 +70,7 @@ function switchView(viewName) {
   const selectedView = document.getElementById(`view-${viewName}`);
   if (selectedView) {
     selectedView.classList.remove('hidden');
+    transitionIntoView(selectedView);
   }
 
   // Update nav items
@@ -55,7 +111,8 @@ letters season : "Spring".`,
     `decimal price : 99.99.
 int quantity : 5.
 letters message : "Hello Farmer!".`,
-    `bool isRaining : 0.
+    `bool isRaining : true.
+  bool sprinklerOn : 0.
 letter grade : 'A'.`,
     `doubleDecimal pi : 3.14159265359.`
   ];
@@ -77,11 +134,7 @@ async function compile() {
     return;
   }
 
-  const compileBtn = document.getElementById('compileBtn');
-  if (compileBtn) {
-    compileBtn.classList.add('compiling');
-    compileBtn.textContent = 'Compiling...';
-  }
+  updateCompileButtonState(true);
   updateStatus('compiling', 'The Junimos are working their magic...', 50);
 
   try {
@@ -110,10 +163,7 @@ async function compile() {
     showNotification(`Compilation failed: ${error.message}`, 'error');
   } finally {
     setTimeout(() => {
-      if (compileBtn) {
-        compileBtn.classList.remove('compiling');
-        compileBtn.textContent = 'Compile';
-      }
+      updateCompileButtonState(false);
     }, 500);
   }
 }
@@ -137,6 +187,12 @@ function updateStatus(status, message, efficiency) {
   diagnosticText.textContent = message;
   efficiencyText.textContent = `${efficiency}%`;
   efficiencyBar.style.width = `${efficiency}%`;
+  statusBadge.classList.add('status-pulse');
+  statusDot.classList.add('status-pulse');
+  setTimeout(() => {
+    statusBadge.classList.remove('status-pulse');
+    statusDot.classList.remove('status-pulse');
+  }, 420);
 
   // Update colors based on status
   if (status === 'success') {
@@ -186,6 +242,7 @@ function updateLexerView(lexResult, lexExplanation) {
 
   const tokenGrid = document.getElementById('tokenGrid');
   tokenGrid.innerHTML = '';
+  applyPanelRefresh(tokenGrid);
 
   // Token type to icon mapping
   const iconMap = {
@@ -235,6 +292,8 @@ function updateLexerView(lexResult, lexExplanation) {
     tokenGrid.appendChild(tokenCard);
   });
 
+  applyStaggeredReveal(tokenGrid.children);
+
 }
 
 // Update Parser View
@@ -244,6 +303,7 @@ function updateParserView(parseResults, parseExplanations) {
   const semanticInfo = document.getElementById('semanticInfo');
 
   parseResultsDiv.innerHTML = '';
+  applyPanelRefresh(parseResultsDiv);
 
   parseResults.forEach((result, index) => {
     const resultCard = document.createElement('div');
@@ -294,6 +354,8 @@ function updateParserView(parseResults, parseExplanations) {
     parseResultsDiv.appendChild(resultCard);
   });
 
+  applyStaggeredReveal(parseResultsDiv.children);
+
   // Update semantic status
   const hasErrors = parseResults.some(r => !r.ok);
   if (hasErrors) {
@@ -316,6 +378,8 @@ function updateParserView(parseResults, parseExplanations) {
       </div>
     `;
   }
+
+  applyPanelRefresh(semanticInfo);
 }
 
 // Update Results View
@@ -392,6 +456,7 @@ function updateResultsView(results) {
       </div>
     `;
   }
+  applyPanelRefresh(diagnosticsPanel);
 
   // Update symbol table
   if (results.symbolTables.length === 0 || results.symbolTables.every(st => st.entries.length === 0)) {
@@ -430,6 +495,8 @@ function updateResultsView(results) {
       </div>
     `;
   }
+  applyPanelRefresh(symbolTableContent);
+  applyStaggeredReveal(symbolTableContent.children);
 
   // Update class table
   if (results.classTables && results.classTables.length > 0 && results.classTables.some(ct => ct.entries.length > 0)) {
@@ -471,6 +538,8 @@ function updateResultsView(results) {
   } else {
     classTableContent.innerHTML = '<p class="text-center text-on-surface-variant italic py-8">No classes declared in this program.</p>';
   }
+  applyPanelRefresh(classTableContent);
+  applyStaggeredReveal(classTableContent.children);
 
   // Update semantic actions
   const allActions = results.semanticResults.flatMap(r => r.actions || []);
@@ -508,6 +577,8 @@ function updateResultsView(results) {
       `;
     }).join('');
   }
+  applyPanelRefresh(semanticActions);
+  applyStaggeredReveal(semanticActions.children);
 }
 
 // Utility functions
@@ -545,6 +616,7 @@ HOW TO USE:
 
 LANGUAGE SYNTAX:
 - Data types: int, decimal, doubleDecimal, letters, letter, bool
+- Bool values: true, false, 0, or 1
 - Assignment: variableName : value.
 - Strings: "text"
 - Numbers: 123 or 123.45
