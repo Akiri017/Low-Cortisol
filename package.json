@@ -6,6 +6,7 @@
   "scripts": {
     "build": "tsc -p tsconfig.json",
     "build:browser": "npm run build && esbuild src/browser.ts --bundle --format=esm --outfile=stitch_low_cortisol_frontend/compiler-bundle.js --sourcemap",
+    "lowcortisol": "npm run build:browser && npm --prefix stitch_low_cortisol_frontend start",
     "lint": "tsc -p tsconfig.json --noEmit",
     "test": "vitest run",
     "test:watch": "vitest"
