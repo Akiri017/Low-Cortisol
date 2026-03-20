@@ -1,0 +1,303 @@
+<!DOCTYPE html>
+
+<html lang="en"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>StardewIDE - Compiler View</title>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;700;800&amp;family=Be+Vietnam+Pro:wght@400;500;700&amp;family=Space_Grotesk:wght@400;700&amp;family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<script id="tailwind-config">
+      tailwind.config = {
+        darkMode: "class",
+        theme: {
+          extend: {
+            colors: {
+              "surface": "#fff6dd",
+              "tertiary-container": "#54c7fc",
+              "on-secondary-fixed": "#00480f",
+              "secondary": "#006b1b",
+              "on-primary-fixed": "#4a280a",
+              "on-surface-variant": "#615b47",
+              "on-secondary-fixed-variant": "#00691a",
+              "on-background": "#332f1d",
+              "error-dim": "#b92902",
+              "primary-dim": "#6f4626",
+              "on-primary-fixed-variant": "#6c4324",
+              "on-tertiary-fixed": "#002636",
+              "secondary-fixed": "#91f78e",
+              "on-tertiary": "#e6f5ff",
+              "surface-container": "#f2e8c9",
+              "inverse-surface": "#110e02",
+              "on-secondary": "#d1ffc8",
+              "on-secondary-container": "#005e17",
+              "surface-container-high": "#ece2c1",
+              "on-primary-container": "#613b1c",
+              "secondary-dim": "#005d16",
+              "error-container": "#f95630",
+              "tertiary-fixed": "#54c7fc",
+              "surface-dim": "#dfd4b0",
+              "outline": "#7d7760",
+              "on-error": "#ffefec",
+              "primary-container": "#fac097",
+              "error": "#b02500",
+              "primary": "#7d5231",
+              "secondary-fixed-dim": "#83e881",
+              "outline-variant": "#b4ad94",
+              "surface-container-low": "#faf0d3",
+              "inverse-on-surface": "#a49d85",
+              "on-tertiary-fixed-variant": "#004760",
+              "surface-container-highest": "#e7ddba",
+              "background": "#fff6dd",
+              "surface-container-lowest": "#ffffff",
+              "inverse-primary": "#fac097",
+              "surface-variant": "#e7ddba",
+              "primary-fixed-dim": "#ebb38a",
+              "on-surface": "#332f1d",
+              "tertiary-dim": "#005673",
+              "surface-tint": "#7d5231",
+              "surface-bright": "#fff6dd",
+              "on-primary": "#fff0e7",
+              "tertiary-fixed-dim": "#42b9ed",
+              "primary-fixed": "#fac097",
+              "on-tertiary-container": "#003d54",
+              "secondary-container": "#91f78e",
+              "on-error-container": "#520c00",
+              "tertiary": "#006384"
+            },
+            fontFamily: {
+              "headline": ["Plus Jakarta Sans"],
+              "body": ["Be Vietnam Pro"],
+              "label": ["Space Grotesk"]
+            },
+            borderRadius: {"DEFAULT": "0.125rem", "lg": "0.25rem", "xl": "0.5rem", "full": "0.75rem"},
+          },
+        },
+      }
+    </script>
+<style>
+      .material-symbols-outlined {
+        font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24;
+      }
+      .pixel-shadow {
+        box-shadow: 4px 4px 0px 0px rgba(125, 82, 49, 0.2);
+      }
+      .ribbon-clip {
+        clip-path: polygon(100% 0, 95% 50%, 100% 100%, 0 100%, 5% 50%, 0 0);
+      }
+    </style>
+</head>
+<body class="bg-surface text-on-surface font-body selection:bg-secondary-fixed selection:text-on-secondary-fixed">
+<!-- Top Navigation -->
+<header class="fixed top-0 w-full z-50 flex justify-between items-center px-6 bg-[#fff6dd] dark:bg-[#332f1d] shadow-[0_4px_0_rgba(125,82,49,0.1)] h-16">
+<div class="flex items-center gap-8">
+<h1 class="text-2xl font-black text-[#7d5231] dark:text-[#f2e8c9] font-headline tracking-tighter">StardewIDE</h1>
+<nav class="hidden md:flex gap-6 items-center h-full">
+<a class="text-[#7d5231] border-b-4 border-[#7d5231] pb-1 font-headline font-bold tracking-tighter hover:translate-y-[-2px] transition-transform" href="#">Home</a>
+</nav>
+</div>
+<div class="flex items-center gap-4">
+<span class="material-symbols-outlined text-primary cursor-pointer hover:scale-95 duration-150" data-icon="terminal">terminal</span>
+<div class="w-8 h-8 rounded bg-primary-container overflow-hidden border-2 border-primary">
+<img alt="Farmer Portrait" class="w-full h-full object-cover" data-alt="Stardew Valley style pixel portrait of a farmer" src="https://lh3.googleusercontent.com/aida-public/AB6AXuD1qT_RETmgVtD2IBH-VfgXkucANvL_X8-3-zaF-kLcZErPvcQEuOqr7Kgpoj1909Q0nbk-XETEHhWEXD75MNSDr0Oel6BWD2PfQP0Q3WhCWed4OA49tNplUp389cdjYM2RLbjhFtigMWpNok_bYufRRalkXzAs5HqmHWmhW1Et3-2WQTumH1nvI7PvtQ54HpaEXogUksTK7nSk6lcBS5h_b1Edv1ULghFamWVcl6TR-iOYHwHqJCUpTz3LWaxeGTvgheFJpz1mndTc"/>
+</div>
+</div>
+</header>
+<!-- Side Navigation Bar -->
+<aside class="fixed left-0 top-16 h-full w-64 flex flex-col py-4 bg-[#f2e8c9] dark:bg-[#2d2a1c] shadow-inner z-40 hidden md:flex font-['Be_Vietnam_Pro'] text-sm">
+<div class="px-6 mb-8">
+<div class="flex items-center gap-3 p-3 bg-surface-container-high rounded-lg mb-2">
+<div class="w-10 h-10 bg-secondary-fixed rounded flex items-center justify-center">
+<span class="material-symbols-outlined text-on-secondary-fixed" data-icon="terminal">terminal</span>
+</div>
+<div>
+<div class="text-xs font-label uppercase tracking-widest text-primary/70">Compiler</div>
+<div class="font-bold text-primary">Spring, Year 1</div>
+</div>
+</div>
+</div>
+<nav class="flex-1 space-y-1">
+<a class="flex items-center gap-3 text-[#7d5231] hover:bg-[#ece2c1] mx-2 p-3 rounded-md transition-all" href="#">
+<span class="material-symbols-outlined" data-icon="code">code</span>
+            IDE
+        </a>
+<a class="flex items-center gap-3 text-[#7d5231] hover:bg-[#ece2c1] mx-2 p-3 rounded-md transition-all" href="#">
+<span class="material-symbols-outlined" data-icon="segment">segment</span>
+            Lexer
+        </a>
+<a class="flex items-center gap-3 text-[#7d5231] hover:bg-[#ece2c1] mx-2 p-3 rounded-md transition-all" href="#">
+<span class="material-symbols-outlined" data-icon="account_tree">account_tree</span>
+            Parser/Semantics
+        </a>
+<a class="flex items-center gap-3 bg-[#91f78e] text-[#332f1d] rounded-md mx-2 p-3 font-bold translate-x-1 transition-all" href="#">
+<span class="material-symbols-outlined" data-icon="rule_folder">rule_folder</span>
+            Results
+        </a>
+</nav>
+<div class="mt-auto px-4 py-6">
+<button class="w-full bg-primary hover:bg-primary-dim text-on-primary py-3 rounded-lg font-headline font-bold shadow-md transition-transform hover:translate-y-[-2px] active:scale-95">
+            Compile
+        </button>
+<a class="flex items-center gap-3 mt-4 text-[#7d5231] hover:bg-[#ece2c1] p-3 rounded-md transition-all" href="#">
+<span class="material-symbols-outlined" data-icon="help">help</span>
+            Help
+        </a>
+</div>
+</aside>
+<!-- Main Content Canvas -->
+<main class="md:ml-64 pt-24 pb-20 px-6 md:px-12 min-h-screen">
+<!-- Success Banner -->
+<div class="relative w-full bg-tertiary text-white py-8 px-12 mb-12 shadow-lg ribbon-clip flex flex-col md:flex-row items-center justify-between gap-6">
+<div class="flex items-center gap-6">
+<div class="w-16 h-16 bg-secondary-fixed rounded-full flex items-center justify-center border-4 border-white animate-pulse">
+<span class="material-symbols-outlined text-on-secondary-fixed text-4xl" data-icon="verified" style="font-variation-settings: 'FILL' 1;">verified</span>
+</div>
+<div>
+<h2 class="font-headline text-3xl font-extrabold tracking-tight">Bundle Compiled Successfully!</h2>
+<p class="font-body text-on-tertiary opacity-90">The Junimos are dancing in the Crafts Room.</p>
+</div>
+</div>
+<div class="flex gap-2">
+<span class="material-symbols-outlined text-4xl text-secondary-fixed" data-icon="stars" style="font-variation-settings: 'FILL' 1;">stars</span>
+<span class="material-symbols-outlined text-4xl text-tertiary-container" data-icon="stars" style="font-variation-settings: 'FILL' 1;">stars</span>
+</div>
+</div>
+<div class="grid grid-cols-1 lg:grid-cols-12 gap-8 items-start">
+<!-- Left Column: The Community Center Room (Visual) -->
+<div class="lg:col-span-5 space-y-6">
+<div class="bg-surface-container border-t-8 border-primary rounded-xl overflow-hidden pixel-shadow">
+<div class="p-6 bg-surface-container-highest">
+<h3 class="font-headline text-xl font-bold text-primary flex items-center gap-2">
+<span class="material-symbols-outlined" data-icon="storefront">storefront</span>
+                        The Crafts Room
+                    </h3>
+</div>
+<div class="aspect-video relative bg-surface-dim group overflow-hidden">
+<img alt="Room Rendering" class="w-full h-full object-cover mix-blend-multiply opacity-60" data-alt="Cozy interior design with wooden beams and botanical elements" src="https://lh3.googleusercontent.com/aida-public/AB6AXuDB30pBAdBI-48oXljmksz8f-LymSrV0pG7WrsmnnqenOOMeq2S3Ub2pMkM7iVRx5-DgVgDEc6TOJ9GonUPunndw9dCoph4a08_-qyihIa_NLCqvGdqQMN4QhNs6J62ETIjILygNt69ZMQB8omAiOv53mn6GinFw4eUQfZU-sljxzfzQHgBor0EusGs0ki3Yb-xlCpYwaf1W_ZgMGkw4nq2MVgKOZpv9aH0QDjQELXSivHAHWGqQ4jp_tcl2ssY1_Xt72yjaCLUpr04"/>
+<div class="absolute inset-0 flex items-center justify-center">
+<div class="grid grid-cols-3 gap-4">
+<!-- Bundle Slots -->
+<div class="w-16 h-16 bg-surface-container-lowest border-2 border-dashed border-outline-variant rounded flex items-center justify-center">
+<span class="material-symbols-outlined text-secondary" data-icon="eco" style="font-variation-settings: 'FILL' 1;">eco</span>
+</div>
+<div class="w-16 h-16 bg-surface-container-lowest border-2 border-dashed border-outline-variant rounded flex items-center justify-center">
+<span class="material-symbols-outlined text-tertiary" data-icon="water_drop" style="font-variation-settings: 'FILL' 1;">water_drop</span>
+</div>
+<div class="w-16 h-16 bg-surface-container-lowest border-2 border-dashed border-outline-variant rounded flex items-center justify-center">
+<span class="material-symbols-outlined text-error-dim" data-icon="local_fire_department" style="font-variation-settings: 'FILL' 1;">local_fire_department</span>
+</div>
+<div class="w-16 h-16 bg-secondary-fixed border-2 border-secondary rounded flex items-center justify-center scale-110 shadow-lg">
+<span class="material-symbols-outlined text-on-secondary-fixed" data-icon="inventory_2" style="font-variation-settings: 'FILL' 1;">inventory_2</span>
+</div>
+<div class="w-16 h-16 bg-surface-container-lowest border-2 border-dashed border-outline-variant rounded flex items-center justify-center opacity-40"></div>
+<div class="w-16 h-16 bg-surface-container-lowest border-2 border-dashed border-outline-variant rounded flex items-center justify-center opacity-40"></div>
+</div>
+</div>
+</div>
+<div class="p-6 bg-surface-container-low border-t border-outline-variant/10">
+<p class="font-body text-on-surface-variant text-sm italic">
+                        "The room feels warmer now. New paths have opened in the valley."
+                    </p>
+</div>
+</div>
+<!-- Build Stats -->
+<div class="grid grid-cols-2 gap-4">
+<div class="bg-surface-container p-4 rounded-lg flex flex-col gap-1 border-l-4 border-secondary">
+<span class="font-label text-xs uppercase tracking-widest text-on-surface-variant">Compile Time</span>
+<span class="font-headline text-2xl font-bold text-secondary">0.42s</span>
+</div>
+<div class="bg-surface-container p-4 rounded-lg flex flex-col gap-1 border-l-4 border-tertiary">
+<span class="font-label text-xs uppercase tracking-widest text-on-surface-variant">Tokens Processed</span>
+<span class="font-headline text-2xl font-bold text-tertiary">1,248</span>
+</div>
+</div>
+</div>
+<!-- Right Column: Symbol Table Plaque -->
+<div class="lg:col-span-7">
+<div class="bg-surface-container-high rounded-xl p-8 pixel-shadow border-4 border-primary/20 relative">
+<!-- Ornamental Corner -->
+<div class="absolute -top-4 -left-4 w-12 h-12 bg-primary flex items-center justify-center rounded-lg shadow-lg">
+<span class="material-symbols-outlined text-on-primary" data-icon="auto_awesome">auto_awesome</span>
+</div>
+<header class="mb-8 border-b-2 border-primary/10 pb-6">
+<h3 class="font-headline text-3xl font-black text-primary uppercase tracking-tight">Symbol Table Plaque</h3>
+<p class="font-label text-on-surface-variant mt-2">Project: Bundle_Compiler_v1.0.4</p>
+</header>
+<div class="space-y-4">
+<!-- Table Header -->
+<div class="grid grid-cols-12 px-4 py-2 text-xs font-label uppercase tracking-widest text-on-surface-variant font-bold">
+<div class="col-span-5">Symbol Name</div>
+<div class="col-span-3">Type</div>
+<div class="col-span-4 text-right">Value</div>
+</div>
+<!-- Symbol Rows -->
+<div class="group grid grid-cols-12 items-center p-4 bg-surface-container-lowest rounded-lg border border-transparent hover:border-secondary-fixed transition-colors">
+<div class="col-span-5 flex items-center gap-3">
+<div class="w-8 h-8 bg-secondary-container rounded flex items-center justify-center">
+<span class="material-symbols-outlined text-on-secondary-container text-sm" data-icon="variables">variables</span>
+</div>
+<span class="font-headline font-bold text-primary">currentSeason</span>
+</div>
+<div class="col-span-3 font-label text-sm text-on-surface-variant">STRING</div>
+<div class="col-span-4 text-right font-headline font-bold text-secondary">"Spring"</div>
+</div>
+<div class="group grid grid-cols-12 items-center p-4 bg-surface-container-lowest rounded-lg border border-transparent hover:border-secondary-fixed transition-colors">
+<div class="col-span-5 flex items-center gap-3">
+<div class="w-8 h-8 bg-tertiary-container rounded flex items-center justify-center">
+<span class="material-symbols-outlined text-on-tertiary-container text-sm" data-icon="tag">tag</span>
+</div>
+<span class="font-headline font-bold text-primary">parsnipCount</span>
+</div>
+<div class="col-span-3 font-label text-sm text-on-surface-variant">INT</div>
+<div class="col-span-4 text-right font-headline font-bold text-tertiary">24</div>
+</div>
+<div class="group grid grid-cols-12 items-center p-4 bg-surface-container-lowest rounded-lg border border-transparent hover:border-secondary-fixed transition-colors">
+<div class="col-span-5 flex items-center gap-3">
+<div class="w-8 h-8 bg-primary-container rounded flex items-center justify-center">
+<span class="material-symbols-outlined text-on-primary-container text-sm" data-icon="check_circle">check_circle</span>
+</div>
+<span class="font-headline font-bold text-primary">isBundleComplete</span>
+</div>
+<div class="col-span-3 font-label text-sm text-on-surface-variant">BOOL</div>
+<div class="col-span-4 text-right font-headline font-bold text-primary">true</div>
+</div>
+<div class="group grid grid-cols-12 items-center p-4 bg-surface-container-lowest rounded-lg border border-transparent hover:border-secondary-fixed transition-colors">
+<div class="col-span-5 flex items-center gap-3">
+<div class="w-8 h-8 bg-error-container/20 rounded flex items-center justify-center">
+<span class="material-symbols-outlined text-error text-sm" data-icon="functions">functions</span>
+</div>
+<span class="font-headline font-bold text-primary">calculateYield</span>
+</div>
+<div class="col-span-3 font-label text-sm text-on-surface-variant">FUNC</div>
+<div class="col-span-4 text-right font-headline font-bold text-error-dim">0xFA7E...</div>
+</div>
+<div class="group grid grid-cols-12 items-center p-4 bg-surface-container-lowest rounded-lg border border-transparent hover:border-secondary-fixed transition-colors">
+<div class="col-span-5 flex items-center gap-3">
+<div class="w-8 h-8 bg-secondary-container rounded flex items-center justify-center">
+<span class="material-symbols-outlined text-on-secondary-container text-sm" data-icon="data_object">data_object</span>
+</div>
+<span class="font-headline font-bold text-primary">activeFarmer</span>
+</div>
+<div class="col-span-3 font-label text-sm text-on-surface-variant">OBJECT</div>
+<div class="col-span-4 text-right font-headline font-bold text-secondary">{id: 402}</div>
+</div>
+</div>
+<div class="mt-8 pt-6 border-t border-primary/10 flex justify-between items-center">
+<span class="font-body text-sm text-on-surface-variant">Final Build: v1.0.4-stable</span>
+<button class="bg-secondary text-on-secondary px-6 py-2 rounded-lg font-headline font-bold hover:bg-secondary-dim transition-all flex items-center gap-2">
+<span class="material-symbols-outlined" data-icon="download">download</span>
+                        Export Code
+                    </button>
+</div>
+</div>
+</div>
+</div>
+</main>
+<!-- Footer -->
+<footer class="fixed bottom-0 w-full z-[60] flex justify-between items-center px-8 bg-[#006384] dark:bg-[#004d66] h-10 shadow-[0_-4px_10px_rgba(0,0,0,0.1)] text-white font-label uppercase tracking-widest text-xs">
+<div>Mon, 1st - 6:00 AM</div>
+<div class="flex gap-6">
+<a class="opacity-80 hover:opacity-100 hover:text-[#91f78e] transition-colors" href="#">Weather</a>
+<a class="opacity-80 hover:opacity-100 hover:text-[#91f78e] transition-colors" href="#">Luck</a>
+</div>
+</footer>
+</body></html>

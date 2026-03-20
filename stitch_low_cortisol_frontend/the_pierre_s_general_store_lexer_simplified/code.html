@@ -1,0 +1,361 @@
+<!DOCTYPE html>
+
+<html class="light" lang="en"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>StardewIDE - Pierre's Lexical Analysis</title>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;700;800&amp;family=Be+Vietnam+Pro:wght@400;500;700&amp;family=Space+Grotesk:wght@400;700&amp;family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<script id="tailwind-config">
+      tailwind.config = {
+        darkMode: "class",
+        theme: {
+          extend: {
+            colors: {
+              "surface": "#fff6dd",
+              "tertiary-container": "#54c7fc",
+              "on-secondary-fixed": "#00480f",
+              "secondary": "#006b1b",
+              "on-primary-fixed": "#4a280a",
+              "on-surface-variant": "#615b47",
+              "on-secondary-fixed-variant": "#00691a",
+              "on-background": "#332f1d",
+              "error-dim": "#b92902",
+              "primary-dim": "#6f4626",
+              "on-primary-fixed-variant": "#6c4324",
+              "on-tertiary-fixed": "#002636",
+              "secondary-fixed": "#91f78e",
+              "on-tertiary": "#e6f5ff",
+              "surface-container": "#f2e8c9",
+              "inverse-surface": "#110e02",
+              "on-secondary": "#d1ffc8",
+              "on-secondary-container": "#005e17",
+              "surface-container-high": "#ece2c1",
+              "on-primary-container": "#613b1c",
+              "secondary-dim": "#005d16",
+              "error-container": "#f95630",
+              "tertiary-fixed": "#54c7fc",
+              "surface-dim": "#dfd4b0",
+              "outline": "#7d7760",
+              "on-error": "#ffefec",
+              "primary-container": "#fac097",
+              "error": "#b02500",
+              "primary": "#7d5231",
+              "secondary-fixed-dim": "#83e881",
+              "outline-variant": "#b4ad94",
+              "surface-container-low": "#faf0d3",
+              "inverse-on-surface": "#a49d85",
+              "on-tertiary-fixed-variant": "#004760",
+              "surface-container-highest": "#e7ddba",
+              "background": "#fff6dd",
+              "surface-container-lowest": "#ffffff",
+              "inverse-primary": "#fac097",
+              "surface-variant": "#e7ddba",
+              "primary-fixed-dim": "#ebb38a",
+              "on-surface": "#332f1d",
+              "tertiary-dim": "#005673",
+              "surface-tint": "#7d5231",
+              "surface-bright": "#fff6dd",
+              "on-primary": "#fff0e7",
+              "tertiary-fixed-dim": "#42b9ed",
+              "primary-fixed": "#fac097",
+              "on-tertiary-container": "#003d54",
+              "secondary-container": "#91f78e",
+              "on-error-container": "#520c00",
+              "tertiary": "#006384"
+            },
+            fontFamily: {
+              "headline": ["Plus Jakarta Sans"],
+              "body": ["Be Vietnam Pro"],
+              "label": ["Space Grotesk"]
+            },
+            borderRadius: {"DEFAULT": "0.125rem", "lg": "0.25rem", "xl": "0.5rem", "full": "0.75rem"},
+          },
+        },
+      }
+    </script>
+<style>
+        .material-symbols-outlined {
+            font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24;
+        }
+        .pixel-border {
+            box-shadow: 
+                0 -4px 0 0 #7d5231,
+                0 4px 0 0 #7d5231,
+                -4px 0 0 0 #7d5231,
+                4px 0 0 0 #7d5231;
+        }
+    </style>
+</head>
+<body class="bg-surface font-body text-on-surface">
+<!-- TopNavBar Shell -->
+<header class="fixed top-0 w-full z-50 flex justify-between items-center px-6 bg-[#f2e8c9] dark:bg-[#4a442d] h-16 shadow-[0_4px_0_rgba(125,82,49,0.1)]">
+<div class="flex items-center gap-4">
+<span class="text-2xl font-black text-[#7d5231] dark:text-[#f2e8c9] font-headline tracking-tighter">StardewIDE</span>
+<nav class="hidden md:flex gap-6 ml-8">
+<a class="text-[#7d5231] border-b-4 border-[#7d5231] pb-1 font-headline font-bold transition-transform hover:translate-y-[-2px]" href="#">Home</a>
+</nav>
+</div>
+<div class="flex items-center gap-4">
+<span class="material-symbols-outlined text-primary cursor-pointer hover:scale-95 duration-150">terminal</span>
+<div class="w-8 h-8 rounded bg-primary-container overflow-hidden">
+<img alt="Farmer Portrait" class="w-full h-full object-cover" src="https://lh3.googleusercontent.com/aida-public/AB6AXuDED8EPnlOdQdtlIdacxTDIFULvTi80su6XI_grDqCdHMav_3pRJowtOH07dZM1zT7u6mjCkLZhRKrV5cajL3pzchAEVkzPYrtCPfl2HGKJ8UQw_UovVAKfKKFn0nvkVYaSDSDRqSN9EgkaVsWTN9RC6arxmgxMIUkyZIgi-PVOToOSAPcj_IaEf5Mkze039JibiohXCJ1iHjhDsKgOjds2gwWCxSWAwtd6E96LtOYqfxBiSgwfzUop2B4VA0z8LUsQO292s7uS2fj5"/>
+</div>
+</div>
+</header>
+<!-- SideNavBar Shell -->
+<aside class="fixed left-0 top-16 h-full w-64 flex flex-col py-4 bg-[#f2e8c9] dark:bg-[#2d2a1c] shadow-inner z-40 hidden md:flex">
+<div class="px-6 mb-8">
+<h2 class="font-headline font-extrabold text-primary text-xl">Compiler</h2>
+<p class="text-xs font-label uppercase text-outline">Spring, Year 1</p>
+</div>
+<nav class="flex-1 space-y-1">
+<a class="flex items-center gap-3 text-[#7d5231] hover:bg-[#ece2c1] mx-2 p-3 rounded-md transition-all translate-x-1" href="#">
+<span class="material-symbols-outlined">code</span>
+<span class="font-medium text-sm">IDE</span>
+</a>
+<a class="flex items-center gap-3 bg-[#91f78e] text-[#332f1d] rounded-md mx-2 p-3 font-bold shadow-sm translate-x-1" href="#">
+<span class="material-symbols-outlined">segment</span>
+<span class="font-medium text-sm">Lexer</span>
+</a>
+<a class="flex items-center gap-3 text-[#7d5231] hover:bg-[#ece2c1] mx-2 p-3 rounded-md transition-all translate-x-1" href="#">
+<span class="material-symbols-outlined">account_tree</span>
+<span class="font-medium text-sm">Parser/Semantics</span>
+</a>
+<a class="flex items-center gap-3 text-[#7d5231] hover:bg-[#ece2c1] mx-2 p-3 rounded-md transition-all translate-x-1" href="#">
+<span class="material-symbols-outlined">rule_folder</span>
+<span class="font-medium text-sm">Results</span>
+</a>
+</nav>
+<div class="px-4 mt-auto space-y-4">
+<button class="w-full bg-gradient-to-br from-primary to-primary-dim text-on-primary py-3 rounded-lg font-headline font-bold shadow-lg hover:translate-y-[-2px] transition-transform">
+                Compile
+            </button>
+<a class="flex items-center gap-3 text-[#7d5231] opacity-80 hover:opacity-100 px-2 py-2" href="#">
+<span class="material-symbols-outlined">help</span>
+<span class="text-sm font-label uppercase">Help</span>
+</a>
+</div>
+</aside>
+<!-- Main Content Canvas -->
+<main class="md:ml-64 pt-24 pb-20 px-8 min-h-screen">
+<!-- Ribbon Banner Page Title -->
+<div class="relative w-full bg-tertiary text-on-tertiary px-8 py-6 mb-12 -ml-4 rounded-r-xl shadow-lg">
+<h1 class="font-headline text-3xl font-extrabold tracking-tight">Pierre's General Store: Lexical Inventory</h1>
+<p class="font-body opacity-90 mt-1">Analyzing the harvested source code for lexical tokens.</p>
+</div>
+<div class="grid grid-cols-1 lg:grid-cols-12 gap-12">
+<!-- Code Input (The "Seed Box") -->
+<section class="lg:col-span-4 space-y-6">
+<div class="bg-surface-container-high p-6 rounded-lg shadow-inner">
+<div class="flex items-center gap-3 mb-4">
+<div class="w-8 h-8 bg-secondary-fixed flex items-center justify-center rounded">
+<span class="material-symbols-outlined text-on-secondary-fixed text-lg">description</span>
+</div>
+<h3 class="font-headline font-bold text-primary">Input Source</h3>
+</div>
+<div class="bg-surface-container-lowest p-4 rounded border-2 border-dashed border-outline-variant font-mono text-sm leading-relaxed text-on-surface-variant">
+<span class="text-secondary font-bold">digit</span> age <span class="text-tertiary">~</span> <span class="text-error">20</span><span class="text-outline">.</span>
+</div>
+<div class="mt-4 p-4 bg-surface-container-low rounded border-l-4 border-primary italic text-sm text-on-surface-variant">
+                        "Just pulled these fresh from the terminal. Needs a bit of sorting, doesn't it?" — Pierre
+                    </div>
+</div>
+<div class="bg-surface-container-highest p-6 rounded-lg">
+<h3 class="font-headline font-bold text-primary mb-4 flex items-center gap-2">
+<span class="material-symbols-outlined">info</span> Shop Metadata
+                    </h3>
+<ul class="space-y-3 text-sm font-label uppercase tracking-wider text-on-surface-variant">
+<li class="flex justify-between border-b border-outline-variant/20 pb-1">
+<span>Analysis Time</span>
+<span class="text-primary font-bold">0.04s</span>
+</li>
+<li class="flex justify-between border-b border-outline-variant/20 pb-1">
+<span>Tokens Found</span>
+<span class="text-primary font-bold">5 Items</span>
+</li>
+<li class="flex justify-between border-b border-outline-variant/20 pb-1">
+<span>Lexical Status</span>
+<span class="text-secondary font-bold">Healthy</span>
+</li>
+</ul>
+</div>
+</section>
+<!-- Inventory Grid (The "Counter") -->
+<section class="lg:col-span-8">
+<div class="grid grid-cols-2 sm:grid-cols-3 xl:grid-cols-4 gap-6">
+<!-- Token Item 1 -->
+<div class="group relative bg-surface-container rounded-lg p-1 transition-all hover:scale-[1.02] hover:shadow-xl">
+<div class="bg-surface-container-lowest h-full rounded-lg p-4 border-2 border-transparent group-hover:border-secondary-fixed">
+<div class="flex justify-center mb-4">
+<div class="w-12 h-12 bg-secondary-fixed flex items-center justify-center rounded shadow-sm">
+<span class="material-symbols-outlined text-on-secondary-fixed text-3xl">terminal</span>
+</div>
+</div>
+<div class="text-center">
+<span class="font-label text-[10px] uppercase tracking-widest text-outline">DATATYPE</span>
+<h4 class="font-headline font-extrabold text-primary text-xl mt-1">digit</h4>
+</div>
+<!-- Price Tag / Explainability Note -->
+<div class="mt-4 pt-4 border-t border-outline-variant/10">
+<div class="bg-primary-container/20 p-2 rounded text-[11px] text-on-primary-container leading-tight">
+<span class="font-bold block mb-1">SHOP NOTE:</span>
+                                    Reserved keyword defining an integer memory plot.
+                                </div>
+<div class="mt-2 flex justify-between items-center px-1">
+<span class="text-[10px] font-label font-bold text-tertiary">ID: 101</span>
+<span class="text-xs font-bold text-secondary">$0.00</span>
+</div>
+</div>
+</div>
+</div>
+<!-- Token Item 2 -->
+<div class="group relative bg-surface-container rounded-lg p-1 transition-all hover:scale-[1.02] hover:shadow-xl">
+<div class="bg-surface-container-lowest h-full rounded-lg p-4 border-2 border-transparent group-hover:border-secondary-fixed">
+<div class="flex justify-center mb-4">
+<div class="w-12 h-12 bg-secondary-fixed flex items-center justify-center rounded shadow-sm">
+<span class="material-symbols-outlined text-on-secondary-fixed text-3xl">label</span>
+</div>
+</div>
+<div class="text-center">
+<span class="font-label text-[10px] uppercase tracking-widest text-outline">IDENTIFIER</span>
+<h4 class="font-headline font-extrabold text-primary text-xl mt-1">age</h4>
+</div>
+<div class="mt-4 pt-4 border-t border-outline-variant/10">
+<div class="bg-primary-container/20 p-2 rounded text-[11px] text-on-primary-container leading-tight">
+<span class="font-bold block mb-1">SHOP NOTE:</span>
+                                    User-defined name for a specific data container.
+                                </div>
+<div class="mt-2 flex justify-between items-center px-1">
+<span class="text-[10px] font-label font-bold text-tertiary">ID: 204</span>
+<span class="text-xs font-bold text-secondary">$0.00</span>
+</div>
+</div>
+</div>
+</div>
+<!-- Token Item 3 -->
+<div class="group relative bg-surface-container rounded-lg p-1 transition-all hover:scale-[1.02] hover:shadow-xl">
+<div class="bg-surface-container-lowest h-full rounded-lg p-4 border-2 border-transparent group-hover:border-secondary-fixed">
+<div class="flex justify-center mb-4">
+<div class="w-12 h-12 bg-secondary-fixed flex items-center justify-center rounded shadow-sm">
+<span class="material-symbols-outlined text-on-secondary-fixed text-3xl">equalizer</span>
+</div>
+</div>
+<div class="text-center">
+<span class="font-label text-[10px] uppercase tracking-widest text-outline">OPERATOR</span>
+<h4 class="font-headline font-extrabold text-primary text-xl mt-1">~</h4>
+</div>
+<div class="mt-4 pt-4 border-t border-outline-variant/10">
+<div class="bg-primary-container/20 p-2 rounded text-[11px] text-on-primary-container leading-tight">
+<span class="font-bold block mb-1">SHOP NOTE:</span>
+                                    Assignment operator. Links values to identities.
+                                </div>
+<div class="mt-2 flex justify-between items-center px-1">
+<span class="text-[10px] font-label font-bold text-tertiary">ID: 055</span>
+<span class="text-xs font-bold text-secondary">$0.00</span>
+</div>
+</div>
+</div>
+</div>
+<!-- Token Item 4 -->
+<div class="group relative bg-surface-container rounded-lg p-1 transition-all hover:scale-[1.02] hover:shadow-xl">
+<div class="bg-surface-container-lowest h-full rounded-lg p-4 border-2 border-transparent group-hover:border-secondary-fixed">
+<div class="flex justify-center mb-4">
+<div class="w-12 h-12 bg-secondary-fixed flex items-center justify-center rounded shadow-sm">
+<span class="material-symbols-outlined text-on-secondary-fixed text-3xl">filter_2</span>
+</div>
+</div>
+<div class="text-center">
+<span class="font-label text-[10px] uppercase tracking-widest text-outline">LITERAL</span>
+<h4 class="font-headline font-extrabold text-primary text-xl mt-1">20</h4>
+</div>
+<div class="mt-4 pt-4 border-t border-outline-variant/10">
+<div class="bg-primary-container/20 p-2 rounded text-[11px] text-on-primary-container leading-tight">
+<span class="font-bold block mb-1">SHOP NOTE:</span>
+                                    Constant numeric value found in the source.
+                                </div>
+<div class="mt-2 flex justify-between items-center px-1">
+<span class="text-[10px] font-label font-bold text-tertiary">ID: 882</span>
+<span class="text-xs font-bold text-secondary">$0.00</span>
+</div>
+</div>
+</div>
+</div>
+<!-- Token Item 5 -->
+<div class="group relative bg-surface-container rounded-lg p-1 transition-all hover:scale-[1.02] hover:shadow-xl">
+<div class="bg-surface-container-lowest h-full rounded-lg p-4 border-2 border-transparent group-hover:border-secondary-fixed">
+<div class="flex justify-center mb-4">
+<div class="w-12 h-12 bg-secondary-fixed flex items-center justify-center rounded shadow-sm">
+<span class="material-symbols-outlined text-on-secondary-fixed text-3xl">stop_circle</span>
+</div>
+</div>
+<div class="text-center">
+<span class="font-label text-[10px] uppercase tracking-widest text-outline">PUNCTUATION</span>
+<h4 class="font-headline font-extrabold text-primary text-xl mt-1">.</h4>
+</div>
+<div class="mt-4 pt-4 border-t border-outline-variant/10">
+<div class="bg-primary-container/20 p-2 rounded text-[11px] text-on-primary-container leading-tight">
+<span class="font-bold block mb-1">SHOP NOTE:</span>
+                                    Statement terminator. End of the instruction.
+                                </div>
+<div class="mt-2 flex justify-between items-center px-1">
+<span class="text-[10px] font-label font-bold text-tertiary">ID: 001</span>
+<span class="text-xs font-bold text-secondary">$0.00</span>
+</div>
+</div>
+</div>
+</div>
+<!-- Empty Slot -->
+<div class="bg-surface-container-low border-2 border-dashed border-outline-variant/30 rounded-lg flex items-center justify-center">
+<span class="material-symbols-outlined text-outline-variant/40 text-4xl">add</span>
+</div>
+</div>
+<!-- Explainability Summary Panel -->
+<div class="mt-12 bg-surface-container shadow-xl rounded-xl overflow-hidden">
+<div class="bg-primary px-6 py-3 flex justify-between items-center">
+<h3 class="font-headline font-bold text-on-primary">Explainability Layer: Summary</h3>
+<span class="text-xs font-label uppercase text-on-primary opacity-80">Lexical Context v1.0</span>
+</div>
+<div class="p-8 grid md:grid-cols-2 gap-8">
+<div>
+<h4 class="font-headline font-bold text-primary mb-2">Lexical Mapping</h4>
+<p class="text-sm text-on-surface-variant leading-relaxed">
+                                The analyzer successfully identified a basic variable declaration. The keyword <span class="font-bold">digit</span> triggered the DATATYPE rule, following the project's Lexical Analysis phase. The symbol <span class="font-bold">~</span> serves as our custom assignment operator, deviating from standard '=' to match the StardewIDE linguistic specs.
+                            </p>
+</div>
+<div class="space-y-4">
+<div class="flex items-start gap-3">
+<div class="w-6 h-6 rounded-full bg-secondary-container flex items-center justify-center mt-1">
+<span class="material-symbols-outlined text-on-secondary-container text-sm">check</span>
+</div>
+<div>
+<span class="block font-bold text-sm">Sequence Validated</span>
+<span class="text-xs text-outline">Tokens follow grammar rules for line #1</span>
+</div>
+</div>
+<div class="flex items-start gap-3">
+<div class="w-6 h-6 rounded-full bg-secondary-container flex items-center justify-center mt-1">
+<span class="material-symbols-outlined text-on-secondary-container text-sm">check</span>
+</div>
+<div>
+<span class="block font-bold text-sm">Symbol Consistency</span>
+<span class="text-xs text-outline">All literal constants within bounds</span>
+</div>
+</div>
+</div>
+</div>
+</div>
+</section>
+</div>
+</main>
+<!-- Footer Ribbon -->
+<footer class="fixed bottom-0 w-full z-[60] flex justify-between items-center px-8 bg-[#006384] dark:bg-[#004d66] text-white font-label uppercase tracking-widest text-xs h-10 shadow-[0_-4px_10px_rgba(0,0,0,0.1)]">
+<div>
+            Mon, 1st - 6:00 AM
+        </div>
+<div class="flex gap-6">
+<a class="opacity-80 hover:opacity-100 hover:text-[#91f78e] transition-colors" href="#">Weather</a>
+<a class="font-bold underline hover:text-[#91f78e]" href="#">Luck</a>
+</div>
+</footer>
+</body></html>

@@ -93,7 +93,7 @@ function formatClassTable(entries) {
             continue;
         }
         for (const f of c.fields) {
-            lines.push(`    ${f.name} | type=${f.type} | value=${f.value} | width=${f.width} | offset=${f.offset}`);
+            lines.push(`    ${f.name} | type=${f.type} | value=${f.value} | width=${f.width} | level=${f.level} | offset=${f.offset}`);
         }
     }
     return lines;

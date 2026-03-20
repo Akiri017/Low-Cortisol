@@ -40,6 +40,7 @@ class ClassTable {
             name: field.name,
             type: field.type,
             width,
+            level: 1,
             offset,
             value: field.value,
         };

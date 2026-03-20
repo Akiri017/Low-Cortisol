@@ -3,6 +3,7 @@ export type ClassFieldEntry = {
     name: string;
     type: DataTypeLexeme;
     width: number;
+    level: number;
     offset: number;
     value: string;
 };

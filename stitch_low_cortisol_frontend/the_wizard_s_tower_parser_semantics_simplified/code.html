@@ -1,0 +1,331 @@
+<!DOCTYPE html>
+
+<html lang="en"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>StardewIDE - Wizard's Tower</title>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;700;800&amp;family=Be+Vietnam+Pro:wght@400;500;700&amp;family=Space+Grotesk:wght@400;700&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<script id="tailwind-config">
+      tailwind.config = {
+        darkMode: "class",
+        theme: {
+          extend: {
+            colors: {
+              "surface": "#fff6dd",
+              "tertiary-container": "#54c7fc",
+              "on-secondary-fixed": "#00480f",
+              "secondary": "#006b1b",
+              "on-primary-fixed": "#4a280a",
+              "on-surface-variant": "#615b47",
+              "on-secondary-fixed-variant": "#00691a",
+              "on-background": "#332f1d",
+              "error-dim": "#b92902",
+              "primary-dim": "#6f4626",
+              "on-primary-fixed-variant": "#6c4324",
+              "on-tertiary-fixed": "#002636",
+              "secondary-fixed": "#91f78e",
+              "on-tertiary": "#e6f5ff",
+              "surface-container": "#f2e8c9",
+              "inverse-surface": "#110e02",
+              "on-secondary": "#d1ffc8",
+              "on-secondary-container": "#005e17",
+              "surface-container-high": "#ece2c1",
+              "on-primary-container": "#613b1c",
+              "secondary-dim": "#005d16",
+              "error-container": "#f95630",
+              "tertiary-fixed": "#54c7fc",
+              "surface-dim": "#dfd4b0",
+              "outline": "#7d7760",
+              "on-error": "#ffefec",
+              "primary-container": "#fac097",
+              "error": "#b02500",
+              "primary": "#7d5231",
+              "secondary-fixed-dim": "#83e881",
+              "outline-variant": "#b4ad94",
+              "surface-container-low": "#faf0d3",
+              "inverse-on-surface": "#a49d85",
+              "on-tertiary-fixed-variant": "#004760",
+              "surface-container-highest": "#e7ddba",
+              "background": "#fff6dd",
+              "surface-container-lowest": "#ffffff",
+              "inverse-primary": "#fac097",
+              "surface-variant": "#e7ddba",
+              "primary-fixed-dim": "#ebb38a",
+              "on-surface": "#332f1d",
+              "tertiary-dim": "#005673",
+              "surface-tint": "#7d5231",
+              "surface-bright": "#fff6dd",
+              "on-primary": "#fff0e7",
+              "tertiary-fixed-dim": "#42b9ed",
+              "primary-fixed": "#fac097",
+              "on-tertiary-container": "#003d54",
+              "secondary-container": "#91f78e",
+              "on-error-container": "#520c00",
+              "tertiary": "#006384"
+            },
+            fontFamily: {
+              "headline": ["Plus Jakarta Sans"],
+              "body": ["Be Vietnam Pro"],
+              "label": ["Space Grotesk"]
+            },
+            borderRadius: {"DEFAULT": "0.125rem", "lg": "0.25rem", "xl": "0.5rem", "full": "0.75rem"},
+          },
+        },
+      }
+    </script>
+<style>
+      .material-symbols-outlined {
+        font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24;
+      }
+      .cauldron-glow {
+        box-shadow: 0 -20px 50px -10px rgba(145, 247, 142, 0.3);
+      }
+      .scroll-edge {
+        background: radial-gradient(circle at 50% 0%, #ece2c1 0%, transparent 70%);
+      }
+    </style>
+</head>
+<body class="bg-surface text-on-surface font-body selection:bg-secondary-container selection:text-on-secondary-container">
+<!-- Top Navigation Bar (Simplified) -->
+<header class="fixed top-0 w-full z-50 flex justify-between items-center px-6 bg-[#fff6dd] dark:bg-[#332f1d] h-16 shadow-[0_4px_0_rgba(125,82,49,0.1)]">
+<div class="flex items-center gap-4">
+<span class="text-2xl font-black text-[#7d5231] dark:text-[#f2e8c9] font-headline tracking-tighter">StardewIDE</span>
+</div>
+<nav class="hidden md:flex items-center gap-8">
+<a class="text-[#7d5231] border-b-4 border-[#7d5231] pb-1 font-headline font-bold hover:translate-y-[-2px] transition-transform" href="#">Home</a>
+</nav>
+<div class="flex items-center gap-4">
+<span class="material-symbols-outlined text-primary cursor-pointer hover:scale-95 duration-150">terminal</span>
+<div class="w-8 h-8 rounded-full overflow-hidden bg-surface-container-high border-2 border-primary">
+<img alt="Farmer Portrait" class="w-full h-full object-cover" data-alt="Pixel art portrait of a wizard farmer" src="https://lh3.googleusercontent.com/aida-public/AB6AXuB4I6rKvh20BNzZi42iqz2sXaIY-thClElCGWF1yhEN_JOv-ieIEbeJATA4vsuImmPkByD_P6VsRlVu29DSmRRjB6y4K-kloiPoKF8WdSUhaeK-ke6cMXU-81xPI1pdgUFAnu4rog-JYXwCWHeFu0RNTOaCSJMkMRVmo3jzZ5waAYIe1QkRWakRZWMjdZrO0hM45N1ON9xyy4HiA6L8CVRQNePrXY3S3EDxzt2Bvw0xGaA0qugIHC_uQSUy153LrjCQh9tD3cxvQlC2"/>
+</div>
+</div>
+</header>
+<!-- Side Navigation Bar (Compiler Focused) -->
+<aside class="fixed left-0 top-16 h-full flex flex-col py-4 bg-[#f2e8c9] dark:bg-[#2d2a1c] w-64 shadow-inner">
+<div class="px-6 mb-8">
+<h2 class="font-headline font-bold text-primary">Compiler</h2>
+<p class="text-xs font-label uppercase tracking-widest text-outline">Spring, Year 1</p>
+</div>
+<nav class="flex-1 space-y-1">
+<a class="flex items-center gap-3 text-[#7d5231] hover:bg-[#ece2c1] mx-2 p-3 rounded-md transition-all translate-x-1" href="#">
+<span class="material-symbols-outlined">code</span>
+<span class="font-body text-sm">IDE</span>
+</a>
+<a class="flex items-center gap-3 text-[#7d5231] hover:bg-[#ece2c1] mx-2 p-3 rounded-md transition-all translate-x-1" href="#">
+<span class="material-symbols-outlined">segment</span>
+<span class="font-body text-sm">Lexer</span>
+</a>
+<a class="flex items-center gap-3 bg-[#91f78e] text-[#332f1d] rounded-md mx-2 p-3 font-bold translate-x-1" href="#">
+<span class="material-symbols-outlined">account_tree</span>
+<span class="font-body text-sm">Parser/Semantics</span>
+</a>
+<a class="flex items-center gap-3 text-[#7d5231] hover:bg-[#ece2c1] mx-2 p-3 rounded-md transition-all translate-x-1" href="#">
+<span class="material-symbols-outlined">rule_folder</span>
+<span class="font-body text-sm">Results</span>
+</a>
+</nav>
+<div class="px-4 mt-auto">
+<button class="w-full py-3 bg-primary text-on-primary font-headline font-bold rounded-lg shadow-lg hover:translate-y-[-2px] transition-transform">Compile</button>
+<a class="flex items-center gap-3 text-[#7d5231] hover:bg-[#91f78e]/20 mx-2 mt-4 p-3 rounded-md transition-all" href="#">
+<span class="material-symbols-outlined">help</span>
+<span class="font-body text-sm">Help</span>
+</a>
+</div>
+</aside>
+<!-- Main Canvas -->
+<main class="ml-64 pt-16 pb-10 min-h-screen">
+<div class="max-w-7xl mx-auto p-12 space-y-12">
+<!-- Ribbon Banner Title -->
+<div class="relative w-full bg-tertiary py-6 px-12 -ml-6 shadow-xl mb-16 flex justify-between items-center">
+<h1 class="text-on-tertiary font-headline text-4xl font-extrabold tracking-tight">The Wizard's Tower</h1>
+<div class="flex gap-2">
+<span class="px-4 py-1 bg-tertiary-fixed text-on-tertiary-fixed font-label text-xs rounded-full">SYNTAX_PARSER_V1.0</span>
+<span class="px-4 py-1 bg-secondary-fixed text-on-secondary-fixed font-label text-xs rounded-full">SEMANTIC_VAL_STABLE</span>
+</div>
+</div>
+<!-- Bento Grid Layout -->
+<div class="grid grid-cols-12 gap-8">
+<!-- Magic Book: Grammar Rules (The Recipe) -->
+<div class="col-span-12 lg:col-span-5 bg-surface-container-high rounded-xl overflow-hidden shadow-2xl flex flex-col">
+<div class="bg-primary text-on-primary p-6 flex justify-between items-center">
+<div class="flex items-center gap-3">
+<span class="material-symbols-outlined">menu_book</span>
+<span class="font-headline font-bold">Grammar Incantations</span>
+</div>
+<span class="font-label text-xs opacity-80">RECIPE #402</span>
+</div>
+<div class="p-8 space-y-6 flex-1 bg-[url('https://www.transparenttextures.com/patterns/paper-fibers.png')]">
+<div class="p-6 bg-surface-container-lowest border-l-8 border-secondary rounded-r-lg space-y-4">
+<h3 class="font-headline text-xl text-primary font-bold">Binding Spell</h3>
+<pre class="font-label text-sm text-on-surface-variant leading-relaxed">let <span class="text-secondary font-bold">&lt;variable&gt;</span> : <span class="text-tertiary font-bold">&lt;type&gt;</span> = <span class="text-error font-bold">&lt;expression&gt;</span>;
+                            </pre>
+</div>
+<div class="space-y-3">
+<p class="font-body text-on-surface leading-relaxed">To successfully bind a value to the ethereal realm of memory, ensure the <span class="italic">type essence</span> matches the <span class="italic">expression's soul</span>.</p>
+<ul class="space-y-2">
+<li class="flex items-center gap-3 text-sm text-on-surface-variant">
+<span class="w-1.5 h-1.5 rounded-full bg-secondary"></span>
+                                    The name must start with a lowercase rune.
+                                </li>
+<li class="flex items-center gap-3 text-sm text-on-surface-variant">
+<span class="w-1.5 h-1.5 rounded-full bg-secondary"></span>
+                                    Types must be selected from the Ancient Lexicon.
+                                </li>
+</ul>
+</div>
+</div>
+</div>
+<!-- The Cauldron: Semantic Checking -->
+<div class="col-span-12 lg:col-span-7 bg-on-background rounded-xl p-8 relative overflow-hidden cauldron-glow min-h-[400px]">
+<div class="relative z-10 flex flex-col h-full">
+<div class="flex justify-between items-start mb-12">
+<div>
+<h3 class="font-headline text-3xl text-secondary-fixed font-black">Semantic Validation</h3>
+<p class="text-secondary-fixed/60 font-label">CHECKING CORE INTEGRITY...</p>
+</div>
+<span class="material-symbols-outlined text-6xl text-secondary-fixed/20">auto_fix_high</span>
+</div>
+<div class="flex-1 flex items-center justify-center relative">
+<!-- Glowing Orb Visualization -->
+<div class="w-48 h-48 bg-secondary-fixed/20 rounded-full blur-3xl absolute animate-pulse"></div>
+<div class="w-32 h-32 rounded-full border-4 border-secondary-fixed flex items-center justify-center relative z-20 bg-on-background">
+<span class="material-symbols-outlined text-6xl text-secondary-fixed" style="font-variation-settings: 'FILL' 1;">flare</span>
+</div>
+<!-- Validation Particles -->
+<div class="absolute inset-0 flex items-center justify-center pointer-events-none">
+<div class="w-full h-1 bg-gradient-to-r from-transparent via-secondary-fixed to-transparent opacity-20 rotate-45"></div>
+<div class="w-full h-1 bg-gradient-to-r from-transparent via-secondary-fixed to-transparent opacity-20 -rotate-45"></div>
+</div>
+</div>
+<div class="mt-8 bg-surface-container-high/10 p-6 rounded-lg backdrop-blur-md">
+<div class="flex justify-between items-center mb-2">
+<span class="text-secondary-fixed font-headline font-bold">Processing: <span class="text-white">cropYield</span></span>
+<span class="text-secondary-fixed font-label text-xs">98.4% MATCH</span>
+</div>
+<div class="w-full h-2 bg-on-background rounded-full overflow-hidden border border-secondary-fixed/30">
+<div class="w-[98%] h-full bg-secondary-fixed shadow-[0_0_10px_#91f78e]"></div>
+</div>
+</div>
+</div>
+<!-- Cauldron Inscriptions background -->
+<div class="absolute bottom-0 right-0 opacity-5 select-none pointer-events-none p-4 text-xs font-label text-white text-right">
+                        PARSING_STREAM::TOKENIZE_START<br/>
+                        AST_TREE_GEN_COMPLETE<br/>
+                        SEMANTIC_LAYER_0_STABLE<br/>
+                        BEYOND_THE_VEIL_CHECKING...
+                    </div>
+</div>
+<!-- Symbol Table: The Shelf of Potions / Scroll -->
+<div class="col-span-12 lg:col-span-8 bg-surface-container rounded-xl shadow-lg border-t-8 border-primary relative overflow-hidden">
+<div class="absolute top-0 right-0 w-32 h-32 scroll-edge opacity-50"></div>
+<div class="p-8">
+<div class="flex items-center justify-between mb-8">
+<div class="flex items-center gap-4">
+<div class="w-12 h-12 bg-primary rounded-lg flex items-center justify-center text-on-primary">
+<span class="material-symbols-outlined">shelves</span>
+</div>
+<div>
+<h3 class="font-headline text-2xl font-bold text-primary">Symbol Scroll</h3>
+<p class="font-label text-xs text-outline uppercase">Active Variable Bindings</p>
+</div>
+</div>
+<div class="flex gap-4">
+<button class="p-2 hover:bg-surface-container-high rounded-full transition-colors">
+<span class="material-symbols-outlined text-primary">filter_list</span>
+</button>
+<button class="p-2 hover:bg-surface-container-high rounded-full transition-colors">
+<span class="material-symbols-outlined text-primary">sort</span>
+</button>
+</div>
+</div>
+<div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+<!-- Binding 1 -->
+<div class="bg-surface-container-lowest p-5 rounded-lg border-b-4 border-secondary-fixed shadow-sm hover:translate-y-[-4px] transition-all cursor-pointer group">
+<div class="flex justify-between items-start mb-4">
+<span class="material-symbols-outlined text-secondary text-3xl">fluid_med</span>
+<span class="bg-secondary-container text-on-secondary-container px-2 py-0.5 rounded text-[10px] font-bold font-label">INT</span>
+</div>
+<h4 class="font-headline font-bold text-on-surface">parsnipCount</h4>
+<p class="text-outline text-xs mt-1">Value: <span class="text-primary font-bold">12</span></p>
+<div class="mt-4 pt-4 border-t border-surface-container text-[10px] text-outline opacity-0 group-hover:opacity-100 transition-opacity">
+                                    Memory: 0x4A2BC
+                                </div>
+</div>
+<!-- Binding 2 -->
+<div class="bg-surface-container-lowest p-5 rounded-lg border-b-4 border-tertiary-fixed shadow-sm hover:translate-y-[-4px] transition-all cursor-pointer group">
+<div class="flex justify-between items-start mb-4">
+<span class="material-symbols-outlined text-tertiary text-3xl">pill</span>
+<span class="bg-tertiary-container text-on-tertiary-container px-2 py-0.5 rounded text-[10px] font-bold font-label">STRING</span>
+</div>
+<h4 class="font-headline font-bold text-on-surface">farmerName</h4>
+<p class="text-outline text-xs mt-1">Value: <span class="text-primary font-bold">"Wizard J"</span></p>
+<div class="mt-4 pt-4 border-t border-surface-container text-[10px] text-outline opacity-0 group-hover:opacity-100 transition-opacity">
+                                    Memory: 0x4A2F1
+                                </div>
+</div>
+<!-- Binding 3 -->
+<div class="bg-surface-container-lowest p-5 rounded-lg border-b-4 border-error-container shadow-sm hover:translate-y-[-4px] transition-all cursor-pointer group">
+<div class="flex justify-between items-start mb-4">
+<span class="material-symbols-outlined text-error text-3xl">syringe</span>
+<span class="bg-error-container text-on-error-container px-2 py-0.5 rounded text-[10px] font-bold font-label">BOOL</span>
+</div>
+<h4 class="font-headline font-bold text-on-surface">isRaining</h4>
+<p class="text-outline text-xs mt-1">Value: <span class="text-primary font-bold">false</span></p>
+<div class="mt-4 pt-4 border-t border-surface-container text-[10px] text-outline opacity-0 group-hover:opacity-100 transition-opacity">
+                                    Memory: 0x4A302
+                                </div>
+</div>
+</div>
+</div>
+</div>
+<!-- Explainability Layer: Magical Inscriptions -->
+<div class="col-span-12 lg:col-span-4 bg-surface-variant p-8 rounded-xl flex flex-col justify-between border-dashed border-2 border-outline/30">
+<div>
+<div class="flex items-center gap-3 mb-6">
+<span class="material-symbols-outlined text-primary">auto_awesome</span>
+<h3 class="font-headline text-xl font-bold text-primary">Magical Inscriptions</h3>
+</div>
+<div class="space-y-6">
+<div class="relative pl-6">
+<div class="absolute left-0 top-0 bottom-0 w-1 bg-gradient-to-b from-primary to-transparent"></div>
+<p class="font-body text-sm text-on-surface leading-relaxed italic">
+                                    "The parser has woven the tokens into a coherent structure. The variable <span class="font-bold">parsnipCount</span> was found to be compatible with its assigned vessel."
+                                </p>
+</div>
+<div class="relative pl-6">
+<div class="absolute left-0 top-0 bottom-0 w-1 bg-gradient-to-b from-primary to-transparent"></div>
+<p class="font-body text-sm text-on-surface leading-relaxed italic">
+                                    "Semantic check complete. No temporal paradoxes detected in the expression tree for Year 1."
+                                </p>
+</div>
+</div>
+</div>
+<div class="mt-8 p-4 bg-surface-container-lowest rounded-lg">
+<div class="flex items-center gap-2 mb-2">
+<span class="material-symbols-outlined text-secondary text-sm" style="font-variation-settings: 'FILL' 1;">check_circle</span>
+<span class="font-label text-xs font-bold text-secondary uppercase">Analysis Success</span>
+</div>
+<p class="text-[10px] font-label text-outline leading-tight">THE SYNTACTIC REQUISITES HAVE BEEN MET. THE TOWER IS STABLE.</p>
+</div>
+</div>
+</div>
+</div>
+</main>
+<!-- Footer Banner -->
+<footer class="fixed bottom-0 w-full z-[60] flex justify-between items-center px-8 bg-[#006384] dark:bg-[#004d66] text-white h-10 shadow-[0_-4px_10px_rgba(0,0,0,0.1)] font-label uppercase tracking-widest text-xs">
+<div class="flex items-center gap-6">
+<span class="font-bold">Mon, 1st - 6:00 AM</span>
+<div class="flex gap-4">
+<a class="opacity-80 hover:opacity-100 hover:text-[#91f78e]" href="#">Weather</a>
+<a class="opacity-80 hover:opacity-100 hover:text-[#91f78e]" href="#">Luck</a>
+</div>
+</div>
+<div class="flex items-center gap-4">
+<span class="text-[10px] opacity-60">System Ready</span>
+<div class="w-2 h-2 rounded-full bg-secondary-fixed animate-pulse"></div>
+</div>
+</footer>
+</body></html>

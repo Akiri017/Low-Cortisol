@@ -1,0 +1,9 @@
+{
+  "name": "stardewide-frontend",
+  "version": "1.0.0",
+  "description": "Web frontend for Low Cortisol Compiler",
+  "scripts": {
+    "start": "node server.js",
+    "serve": "python -m http.server 8000"
+  }
+}

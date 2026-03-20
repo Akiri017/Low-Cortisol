@@ -4,6 +4,7 @@ export type ClassFieldEntry = {
   name: string;
   type: DataTypeLexeme;
   width: number;
+  level: number;
   offset: number;
   value: string;
 };
@@ -59,6 +60,7 @@ export class ClassTable {
       name: field.name,
       type: field.type,
       width,
+      level: 1,
       offset,
       value: field.value,
     };

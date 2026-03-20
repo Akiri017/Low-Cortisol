@@ -1,0 +1,271 @@
+<!DOCTYPE html>
+
+<html lang="en"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>StardewIDE - The Farmhouse Terminal</title>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;700;800&amp;family=Be+Vietnam+Pro:wght@400;500;700&amp;family=Space+Grotesk:wght@400;700&amp;family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<script id="tailwind-config">
+      tailwind.config = {
+        darkMode: "class",
+        theme: {
+          extend: {
+            colors: {
+              "surface": "#fff6dd",
+              "tertiary-container": "#54c7fc",
+              "on-secondary-fixed": "#00480f",
+              "secondary": "#006b1b",
+              "on-primary-fixed": "#4a280a",
+              "on-surface-variant": "#615b47",
+              "on-secondary-fixed-variant": "#00691a",
+              "on-background": "#332f1d",
+              "error-dim": "#b92902",
+              "primary-dim": "#6f4626",
+              "on-primary-fixed-variant": "#6c4324",
+              "on-tertiary-fixed": "#002636",
+              "secondary-fixed": "#91f78e",
+              "on-tertiary": "#e6f5ff",
+              "surface-container": "#f2e8c9",
+              "inverse-surface": "#110e02",
+              "on-secondary": "#d1ffc8",
+              "on-secondary-container": "#005e17",
+              "surface-container-high": "#ece2c1",
+              "on-primary-container": "#613b1c",
+              "secondary-dim": "#005d16",
+              "error-container": "#f95630",
+              "tertiary-fixed": "#54c7fc",
+              "surface-dim": "#dfd4b0",
+              "outline": "#7d7760",
+              "on-error": "#ffefec",
+              "primary-container": "#fac097",
+              "error": "#b02500",
+              "primary": "#7d5231",
+              "secondary-fixed-dim": "#83e881",
+              "outline-variant": "#b4ad94",
+              "surface-container-low": "#faf0d3",
+              "inverse-on-surface": "#a49d85",
+              "on-tertiary-fixed-variant": "#004760",
+              "surface-container-highest": "#e7ddba",
+              "background": "#fff6dd",
+              "surface-container-lowest": "#ffffff",
+              "inverse-primary": "#fac097",
+              "surface-variant": "#e7ddba",
+              "primary-fixed-dim": "#ebb38a",
+              "on-surface": "#332f1d",
+              "tertiary-dim": "#005673",
+              "surface-tint": "#7d5231",
+              "surface-bright": "#fff6dd",
+              "on-primary": "#fff0e7",
+              "tertiary-fixed-dim": "#42b9ed",
+              "primary-fixed": "#fac097",
+              "on-tertiary-container": "#003d54",
+              "secondary-container": "#91f78e",
+              "on-error-container": "#520c00",
+              "tertiary": "#006384"
+            },
+            fontFamily: {
+              "headline": ["Plus Jakarta Sans"],
+              "body": ["Be Vietnam Pro"],
+              "label": ["Space Grotesk"]
+            },
+            borderRadius: {"DEFAULT": "0.125rem", "lg": "0.25rem", "xl": "0.5rem", "full": "0.75rem"},
+          },
+        },
+      }
+    </script>
+<style>
+      .material-symbols-outlined {
+        font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24;
+      }
+      .parchment-texture {
+        background-color: #ffffff;
+        background-image: radial-gradient(#f2e8c9 1px, transparent 0);
+        background-size: 24px 24px;
+      }
+      .wood-grain {
+        background: linear-gradient(135deg, #7d5231 0%, #6f4626 100%);
+      }
+    </style>
+</head>
+<body class="bg-surface font-body text-on-surface min-h-screen">
+<!-- TopAppBar Shell -->
+<nav class="fixed top-0 w-full z-50 flex justify-between items-center px-6 bg-[#f2e8c9] dark:bg-[#4a442d] h-16 shadow-[0_4px_0_rgba(125,82,49,0.1)]">
+<div class="flex items-center gap-8">
+<span class="text-2xl font-black text-[#7d5231] dark:text-[#f2e8c9] font-headline tracking-tighter">StardewIDE</span>
+<div class="hidden md:flex gap-6 items-center h-full">
+<a class="text-[#7d5231] border-b-4 border-[#7d5231] pb-1 font-headline font-bold hover:translate-y-[-2px] transition-transform" href="#">Home</a>
+</div>
+</div>
+<div class="flex items-center gap-4">
+<span class="material-symbols-outlined text-primary cursor-pointer hover:scale-110 duration-150">terminal</span>
+<img alt="Farmer Portrait" class="w-8 h-8 rounded-lg border-2 border-primary-container shadow-sm" src="https://lh3.googleusercontent.com/aida-public/AB6AXuCE4q_gfzPagoFc_87pXnGgIvh6kYIwQ0RpMkBzb0pmy5TPKKbrvqGUgfmKIcXw6xrO3rlsCiZpqNmmCIoKvlfbxVA9x2pNacpMnV1UDmZXtQ6HblXOFbOc2EcGQ1WEsknle4VRxMuTet2S9eQv1acRlzjjTsThkRoDURqCKctKZhof6wgXiR9udOajVtuvLrQ7NIBnf6uMvBZIthEWuMgyZuxBdqiJSlKfT9ZBKUPyW1P3W5F1NuEJoDxb9PZj6Id7AOFHF2UnVME9"/>
+</div>
+</nav>
+<!-- SideNavBar Shell -->
+<aside class="fixed left-0 top-16 h-full flex flex-col py-4 bg-[#f2e8c9] dark:bg-[#2d2a1c] w-64 shadow-inner">
+<div class="px-6 mb-8 flex items-center gap-4">
+<div class="w-12 h-12 bg-secondary-container flex items-center justify-center rounded-lg shadow-sm">
+<span class="material-symbols-outlined text-on-secondary-container" style="font-variation-settings: 'FILL' 1;">terminal</span>
+</div>
+<div>
+<h3 class="font-headline font-bold text-primary leading-tight">Compiler</h3>
+<p class="text-xs font-label uppercase text-on-surface-variant">Spring, Year 1</p>
+</div>
+</div>
+<nav class="flex-1 space-y-2">
+<a class="bg-[#91f78e] text-[#332f1d] rounded-md mx-2 p-3 font-bold flex items-center gap-3 translate-x-1 transition-all" href="#">
+<span class="material-symbols-outlined" style="font-variation-settings: 'FILL' 1;">code</span>
+<span class="text-sm">IDE</span>
+</a>
+<a class="text-[#7d5231] hover:bg-[#ece2c1] mx-2 p-3 rounded-md flex items-center gap-3 hover:translate-x-1 transition-all" href="#">
+<span class="material-symbols-outlined">segment</span>
+<span class="text-sm">Lexer</span>
+</a>
+<a class="text-[#7d5231] hover:bg-[#ece2c1] mx-2 p-3 rounded-md flex items-center gap-3 hover:translate-x-1 transition-all" href="#">
+<span class="material-symbols-outlined">account_tree</span>
+<span class="text-sm">Parser/Semantics</span>
+</a>
+<a class="text-[#7d5231] hover:bg-[#ece2c1] mx-2 p-3 rounded-md flex items-center gap-3 hover:translate-x-1 transition-all" href="#">
+<span class="material-symbols-outlined">rule_folder</span>
+<span class="text-sm">Results</span>
+</a>
+</nav>
+<div class="px-4 mt-auto mb-20">
+<button class="w-full wood-grain text-on-primary py-3 rounded-lg font-headline font-extrabold shadow-lg hover:translate-y-[-2px] transition-transform active:scale-95 duration-150">
+                Compile
+            </button>
+<a class="mt-4 flex items-center gap-3 text-[#7d5231] hover:bg-[#ece2c1] p-3 rounded-md transition-all text-sm font-label" href="#">
+<span class="material-symbols-outlined">help</span>
+<span>Help</span>
+</a>
+</div>
+</aside>
+<!-- Main Content Canvas -->
+<main class="ml-64 pt-16 pb-10 px-12 min-h-screen">
+<!-- Ribbon Banner Header -->
+<div class="relative -mx-12 mb-12 py-8 px-12 bg-tertiary shadow-[0_10px_20px_rgba(0,99,132,0.2)] overflow-hidden">
+<div class="absolute top-0 right-0 opacity-10 scale-150">
+<span class="material-symbols-outlined text-[120px]">terminal</span>
+</div>
+<h1 class="font-headline text-5xl font-extrabold text-on-tertiary tracking-tighter">The Farmhouse Terminal</h1>
+<p class="font-label text-tertiary-container mt-2 tracking-widest uppercase text-sm">Codex Automata // Spring Revision</p>
+</div>
+<div class="grid grid-cols-12 gap-10 items-start">
+<!-- Code Editor Section: The Parchment -->
+<div class="col-span-8 space-y-6">
+<div class="relative bg-surface-container-high p-4 rounded-xl shadow-2xl overflow-hidden border-8 border-primary-dim/10">
+<!-- Desk Clutter -->
+<div class="absolute top-4 right-6 flex items-center gap-4 z-10 pointer-events-none opacity-80">
+<div class="w-12 h-12 bg-tertiary-dim rounded-full flex items-center justify-center shadow-inner" title="Morning Coffee">
+<span class="material-symbols-outlined text-on-tertiary">coffee</span>
+</div>
+<div class="w-10 h-16 bg-secondary-dim rounded-t-full flex items-end justify-center pb-2 shadow-md" title="Potted Succulent">
+<span class="material-symbols-outlined text-secondary-fixed">potted_plant</span>
+</div>
+</div>
+<div class="parchment-texture min-h-[500px] w-full p-12 rounded-lg shadow-inner relative">
+<!-- Decorative Corners -->
+<div class="absolute top-0 left-0 w-8 h-8 border-t-2 border-l-2 border-primary/20"></div>
+<div class="absolute bottom-0 right-0 w-8 h-8 border-b-2 border-r-2 border-primary/20"></div>
+<textarea class="w-full h-full min-h-[400px] bg-transparent border-none focus:ring-0 font-body text-xl text-primary leading-loose resize-none placeholder:text-primary/30" placeholder="// Start crafting your code here...
+digit age ~ 20.
+growth season ~ 'Spring'.
+harvest(crop) {
+  return crop + ' bundle';
+}" spellcheck="false">digit age ~ 20.</textarea>
+</div>
+</div>
+<!-- Action Bar -->
+<div class="flex justify-between items-center bg-surface-container p-4 rounded-xl">
+<div class="flex gap-4">
+<button class="bg-surface-container-highest px-4 py-2 rounded-lg font-label text-primary hover:bg-primary hover:text-on-primary transition-all flex items-center gap-2">
+<span class="material-symbols-outlined text-sm">folder_open</span>
+                            Load Scroll
+                        </button>
+<button class="bg-surface-container-highest px-4 py-2 rounded-lg font-label text-primary hover:bg-primary hover:text-on-primary transition-all flex items-center gap-2">
+<span class="material-symbols-outlined text-sm">save</span>
+                            Archive
+                        </button>
+</div>
+<button class="group flex items-center gap-4 wood-grain text-on-primary pl-6 pr-8 py-4 rounded-lg font-headline font-black text-xl shadow-[0_8px_0_#4a280a] hover:translate-y-1 hover:shadow-[0_4px_0_#4a280a] active:translate-y-2 active:shadow-none transition-all">
+<span class="material-symbols-outlined text-4xl group-hover:rotate-12 transition-transform" style="font-variation-settings: 'FILL' 1;">hand_bones</span>
+                        Compile Code
+                    </button>
+</div>
+</div>
+<!-- Sidebar Info: Bento Grid Style -->
+<div class="col-span-4 flex flex-col gap-6">
+<!-- Status Card -->
+<div class="bg-surface-container-high p-6 rounded-xl border border-outline-variant/15">
+<div class="flex justify-between items-start mb-6">
+<div class="bg-secondary-fixed w-10 h-10 flex items-center justify-center rounded-lg shadow-sm">
+<span class="material-symbols-outlined text-on-secondary-fixed">monitoring</span>
+</div>
+<span class="font-label text-xs font-bold text-secondary uppercase tracking-widest px-2 py-1 bg-secondary-container rounded">System Healthy</span>
+</div>
+<h4 class="font-headline font-bold text-primary text-lg mb-2">Terminal Diagnostics</h4>
+<p class="text-on-surface-variant text-sm leading-relaxed mb-4">The wood is dry and the ink is fresh. Everything is ready for compilation.</p>
+<div class="space-y-3">
+<div class="flex justify-between text-xs font-label uppercase">
+<span class="text-on-surface-variant">Mana Efficiency</span>
+<span class="text-primary font-bold">98%</span>
+</div>
+<div class="w-full bg-surface-container rounded-full h-2">
+<div class="bg-secondary h-2 rounded-full w-[98%] shadow-[0_0_8px_rgba(0,107,27,0.3)]"></div>
+</div>
+</div>
+</div>
+<!-- Asset Browser Card -->
+<div class="bg-surface-container p-6 rounded-xl relative overflow-hidden group">
+<div class="absolute -bottom-4 -right-4 opacity-5 group-hover:opacity-10 transition-opacity">
+<span class="material-symbols-outlined text-[100px]">inventory_2</span>
+</div>
+<h4 class="font-headline font-bold text-primary text-lg mb-4">Project Assets</h4>
+<div class="grid grid-cols-2 gap-3">
+<div class="bg-surface-container-lowest p-3 rounded-lg border border-outline-variant/10 hover:border-primary/30 transition-colors cursor-pointer">
+<span class="material-symbols-outlined text-primary mb-2">data_object</span>
+<p class="font-label text-xs font-bold truncate">variables.st</p>
+</div>
+<div class="bg-surface-container-lowest p-3 rounded-lg border border-outline-variant/10 hover:border-primary/30 transition-colors cursor-pointer">
+<span class="material-symbols-outlined text-secondary mb-2">functions</span>
+<p class="font-label text-xs font-bold truncate">farm_logic.st</p>
+</div>
+<div class="bg-surface-container-lowest p-3 rounded-lg border border-outline-variant/10 hover:border-primary/30 transition-colors cursor-pointer">
+<span class="material-symbols-outlined text-tertiary mb-2">api</span>
+<p class="font-label text-xs font-bold truncate">weather_api.st</p>
+</div>
+<div class="bg-surface-container-lowest p-3 rounded-lg border border-outline-variant/10 hover:border-primary/30 transition-colors cursor-pointer flex items-center justify-center">
+<span class="material-symbols-outlined text-outline-variant">add</span>
+</div>
+</div>
+</div>
+<!-- Quick Tips Card -->
+<div class="bg-primary p-6 rounded-xl text-on-primary">
+<div class="flex items-center gap-3 mb-4">
+<span class="material-symbols-outlined">lightbulb</span>
+<h4 class="font-headline font-bold">Pro Farmer Tip</h4>
+</div>
+<p class="text-sm opacity-90 leading-relaxed italic">"Always ensure your semicolons are like well-planted seeds. If they aren't deep enough, your logic won't grow!"</p>
+</div>
+</div>
+</div>
+</main>
+<!-- Footer Shell -->
+<footer class="fixed bottom-0 w-full z-[60] flex justify-between items-center px-8 bg-[#006384] dark:bg-[#004d66] h-10 shadow-[0_-4px_10px_rgba(0,0,0,0.1)]">
+<div class="flex gap-6 items-center">
+<span class="font-label uppercase tracking-widest text-xs text-white">Mon, 1st - 6:00 AM</span>
+<div class="flex gap-4">
+<a class="font-label uppercase tracking-widest text-xs text-white opacity-80 hover:opacity-100 hover:text-[#91f78e]" href="#">Weather</a>
+<a class="font-label uppercase tracking-widest text-xs text-white opacity-80 hover:opacity-100 hover:text-[#91f78e]" href="#">Luck</a>
+</div>
+</div>
+<div class="flex items-center gap-4 text-white/60 text-xs font-label">
+<span>STARDONE COMPILER V1.4.2</span>
+<div class="flex items-center gap-1">
+<div class="w-2 h-2 rounded-full bg-[#91f78e] animate-pulse"></div>
+<span>CONNECTED</span>
+</div>
+</div>
+</footer>
+</body></html>
