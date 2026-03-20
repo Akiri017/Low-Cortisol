@@ -36,6 +36,38 @@ describe('Phase 3 semantics', () => {
     expect(sem.symbolTable.get('x')).toBeUndefined();
   });
 
+  it('accepts bool literals true/false', () => {
+    const stmt = parseStatement('bool isReady:true.');
+    const sem = analyzeSemantics(stmt);
+    expect(sem.ok).toBe(true);
+    expect(sem.symbolTable.get('isReady')!.value).toBe('true');
+  });
+
+  it('accepts bool literals 0/1', () => {
+    const stmt = parseStatement('bool isSunny:1.');
+    const sem = analyzeSemantics(stmt);
+    expect(sem.ok).toBe(true);
+    expect(sem.symbolTable.get('isSunny')!.value).toBe('1');
+  });
+
+  it('reports bool numeric values using boolean meaning in semantic actions', () => {
+    const stmt = parseStatement('bool raining:0.');
+    const sem = analyzeSemantics(stmt);
+    expect(sem.ok).toBe(true);
+    const typeCheckAction = sem.actions.find((a) => a.kind === 'typeCheck');
+    expect(typeCheckAction).toBeTruthy();
+    if (!typeCheckAction || typeCheckAction.kind !== 'typeCheck') return;
+    expect(typeCheckAction.message).toContain('0 = false');
+    expect(typeCheckAction.message).toContain('Boolean');
+  });
+
+  it('rejects bool values other than true/false/0/1', () => {
+    const stmt = parseStatement('bool bad:2.');
+    const sem = analyzeSemantics(stmt);
+    expect(sem.ok).toBe(false);
+    expect(sem.diagnostics[0]!.message).toContain('Type mismatch');
+  });
+
   it('rejects output of undeclared identifier', () => {
     const stmt = parseStatement('display x.');
     const sem = analyzeSemantics(stmt);

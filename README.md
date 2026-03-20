@@ -61,7 +61,7 @@ Low Cortisol is a simple, type-safe programming language with:
 - `doubleDecimal` - Double-precision decimals
 - `letters` - Strings
 - `letter` - Single character
-- `bool` - Boolean (0 or 1)
+- `bool` - Boolean (true/false or 0/1)
 
 **Syntax:**
 ```

@@ -29,13 +29,17 @@ export type SemanticFailure = {
 
 export type SemanticResult = SemanticSuccess | SemanticFailure;
 
-type ValueType = 'Numeric' | 'String' | 'Char' | 'Identifier' | 'Unknown';
+type ValueType = 'Numeric' | 'String' | 'Char' | 'Boolean' | 'Identifier' | 'Unknown';
 
 function isNumericType(t: DataTypeLexeme): boolean {
   return t === 'decimal' || t === 'doubleDecimal' || t === 'int';
 }
 
 function inferValueType(token: Token): ValueType {
+  if (token.type === TokenType.Identifier && (token.lexeme === 'true' || token.lexeme === 'false')) {
+    return 'Boolean';
+  }
+
   switch (token.type) {
     case TokenType.NumericLiteral:
       return 'Numeric';
@@ -62,11 +66,27 @@ function typeAllowsValue(declared: DataTypeLexeme, valueType: ValueType): boolea
     case 'letter':
       return valueType === 'Char';
     case 'bool':
-      // No boolean literal token yet; only identifiers may be used.
-      return false;
+      return valueType === 'Boolean';
     default:
       return false;
   }
+}
+
+function isBoolNumericLiteral(token: Token): boolean {
+  return token.type === TokenType.NumericLiteral && (token.lexeme === '0' || token.lexeme === '1');
+}
+
+function boolMeaning(token: Token): 'false' | 'true' | null {
+  if (token.lexeme === '0' || token.lexeme === 'false') return 'false';
+  if (token.lexeme === '1' || token.lexeme === 'true') return 'true';
+  return null;
+}
+
+function describeAssignedValueType(declaredType: DataTypeLexeme, valueToken: Token, inferredType: ValueType): string {
+  if (declaredType !== 'bool') return inferredType;
+  const meaning = boolMeaning(valueToken);
+  if (!meaning) return inferredType;
+  return `Boolean (${valueToken.lexeme} = ${meaning})`;
 }
 
 function normalizeLiteralValue(token: Token): string {
@@ -208,9 +228,10 @@ export function analyzeSemantics(statement: Statement, symbolTable?: SymbolTable
     }
 
     const valueType = inferValueType(valueToken);
+    const displayValueType = describeAssignedValueType(declaredType, valueToken, valueType);
     actions.push({
       kind: 'typeCheck',
-      message: `Variable '${name}' is declared as '${declaredType}'. Value is '${valueToken.lexeme}' (${valueType}).`,
+      message: `Variable '${name}' is declared as '${declaredType}'. Value is '${valueToken.lexeme}' (${displayValueType}).`,
     });
 
     let effectiveValue = normalizeLiteralValue(valueToken);
@@ -226,7 +247,8 @@ export function analyzeSemantics(statement: Statement, symbolTable?: SymbolTable
       }
       effectiveValue = ref.value;
     } else {
-      if (!typeAllowsValue(declaredType, valueType)) {
+      const boolNumeric = declaredType === 'bool' && isBoolNumericLiteral(valueToken);
+      if (!boolNumeric && !typeAllowsValue(declaredType, valueType)) {
         errorAt(
           valueToken,
           `Type mismatch: Variable '${name}' is declared as '${declaredType}', but value '${valueToken.lexeme}' is ${valueType}.`,
@@ -338,7 +360,8 @@ export function analyzeSemantics(statement: Statement, symbolTable?: SymbolTable
               }
               fieldValue = ref.value;
             } else {
-              if (!typeAllowsValue(fieldType, valueType)) {
+              const boolNumeric = fieldType === 'bool' && isBoolNumericLiteral(valueToken);
+              if (!boolNumeric && !typeAllowsValue(fieldType, valueType)) {
                 errorAt(
                   valueToken,
                   `Type mismatch: Field '${fieldName}' is declared as '${fieldType}', but value '${valueToken.lexeme}' is ${valueType}.`,

@@ -92,9 +92,85 @@
   .pixel-shadow {
     box-shadow: 4px 4px 0px 0px rgba(125, 82, 49, 0.2);
   }
+  .view-content {
+    transition: opacity 220ms ease, transform 220ms ease;
+    will-change: opacity, transform;
+  }
+  .motion-view-enter {
+    opacity: 0;
+    transform: translateY(10px);
+  }
+  .motion-view-enter-active {
+    opacity: 1;
+    transform: translateY(0);
+  }
+  .motion-refresh {
+    animation: panelRefresh 260ms ease;
+  }
+  .motion-stagger {
+    opacity: 0;
+    transform: translateY(8px) scale(0.99);
+    animation: staggerReveal 280ms ease forwards;
+    will-change: opacity, transform;
+  }
+  .status-badge-transition,
+  .status-text-transition {
+    transition: background-color 180ms ease, color 180ms ease, transform 180ms ease, opacity 180ms ease;
+    will-change: background-color, color, transform, opacity;
+  }
+  .status-pulse {
+    animation: statusPulse 400ms ease;
+  }
+  @keyframes staggerReveal {
+    from {
+      opacity: 0;
+      transform: translateY(8px) scale(0.99);
+    }
+    to {
+      opacity: 1;
+      transform: translateY(0) scale(1);
+    }
+  }
+  @keyframes panelRefresh {
+    0% {
+      opacity: 0.7;
+      transform: translateY(6px);
+    }
+    100% {
+      opacity: 1;
+      transform: translateY(0);
+    }
+  }
+  @keyframes statusPulse {
+    0% {
+      transform: scale(0.98);
+      opacity: 0.6;
+    }
+    100% {
+      transform: scale(1);
+      opacity: 1;
+    }
+  }
   @keyframes pulse {
     0%, 100% { transform: scale(1); }
     50% { transform: scale(1.05); }
+  }
+  @media (prefers-reduced-motion: reduce) {
+    *, *::before, *::after {
+      animation-duration: 0.01ms !important;
+      animation-iteration-count: 1 !important;
+      transition-duration: 0.01ms !important;
+      scroll-behavior: auto !important;
+    }
+    .motion-stagger,
+    .motion-refresh,
+    .status-pulse,
+    .motion-view-enter,
+    .motion-view-enter-active {
+      animation: none !important;
+      opacity: 1 !important;
+      transform: none !important;
+    }
   }
 </style>
 </head>
@@ -191,7 +267,7 @@ letters season : 'Spring'." spellcheck="false">int age : 20.</textarea>
               Clear
             </button>
           </div>
-          <button onclick="compile()" class="group flex items-center gap-4 wood-grain text-on-primary pl-6 pr-8 py-4 rounded-lg font-headline font-black text-xl shadow-[0_8px_0_#4a280a] hover:translate-y-1 hover:shadow-[0_4px_0_#4a280a] active:translate-y-2 active:shadow-none transition-all">
+          <button id="compileBtn" onclick="compile()" class="group flex items-center gap-4 wood-grain text-on-primary pl-6 pr-8 py-4 rounded-lg font-headline font-black text-xl shadow-[0_8px_0_#4a280a] hover:translate-y-1 hover:shadow-[0_4px_0_#4a280a] active:translate-y-2 active:shadow-none transition-all">
             <span class="material-symbols-outlined text-4xl group-hover:rotate-12 transition-transform" style="font-variation-settings: 'FILL' 1;">hand_bones</span>
             Compile Code
           </button>
@@ -203,7 +279,7 @@ letters season : 'Spring'." spellcheck="false">int age : 20.</textarea>
             <div class="bg-secondary-fixed w-10 h-10 flex items-center justify-center rounded-lg shadow-sm">
               <span class="material-symbols-outlined text-on-secondary-fixed">monitoring</span>
             </div>
-            <span id="statusBadge" class="font-label text-xs font-bold text-secondary uppercase tracking-widest px-2 py-1 bg-secondary-container rounded">Ready</span>
+            <span id="statusBadge" class="status-badge-transition font-label text-xs font-bold text-secondary uppercase tracking-widest px-2 py-1 bg-secondary-container rounded">Ready</span>
           </div>
           <h4 class="font-headline font-bold text-primary text-lg mb-2">Terminal Diagnostics</h4>
           <p id="diagnosticText" class="text-on-surface-variant text-sm leading-relaxed mb-4">The wood is dry and the ink is fresh. Everything is ready for compilation.</p>
@@ -393,7 +469,7 @@ letters season : 'Spring'." spellcheck="false">int age : 20.</textarea>
   <div class="flex items-center gap-4 text-white/60 text-xs font-label">
     <span>LOW CORTISOL COMPILER V1.0</span>
     <div class="flex items-center gap-1">
-      <div id="statusDot" class="w-2 h-2 rounded-full bg-[#91f78e] animate-pulse"></div>
+      <div id="statusDot" class="status-text-transition w-2 h-2 rounded-full bg-[#91f78e] animate-pulse"></div>
       <span id="statusText">READY</span>
     </div>
   </div>

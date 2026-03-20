@@ -111,8 +111,6 @@ export function compileSource(source) {
 
   // Step 3: Semantic Analysis (using YOUR semantic analyzer)
   const semanticResults = [];
-  const symbolTables = [];
-  const classTables = [];
   const semanticExplanations = [];
   const sharedSymbolTable = new SymbolTable();
   const sharedClassTable = new ClassTable();
@@ -132,8 +130,6 @@ export function compileSource(source) {
         symbolTable: { entries: () => [] },
         classTable: { entries: () => [] }
       });
-      symbolTables.push({ entries: [] });
-      classTables.push({ entries: [] });
       semanticExplanations.push(['[SEMANTICS] Skipped due to parse failure']);
       continue;
     }
@@ -146,25 +142,11 @@ export function compileSource(source) {
       const semExplanation = explainSemantics(semResult);
       semanticExplanations.push(semExplanation);
 
-      // Extract symbol table entries
-      const entries = typeof semResult.symbolTable?.entries === 'function'
-        ? semResult.symbolTable.entries()
-        : [];
-
-      symbolTables.push({ entries });
-
-      // Extract class table entries
-      const classEntries = typeof semResult.classTable?.entries === 'function'
-        ? semResult.classTable.entries()
-        : [];
-
-      classTables.push({ entries: classEntries });
-
       console.log('[Compiler] Semantic analysis for statement:', {
         ok: semResult.ok,
         diagnostics: semResult.diagnostics?.length || 0,
-        symbols: entries.length,
-        classes: classEntries.length,
+        symbols: typeof semResult.symbolTable?.entries === 'function' ? semResult.symbolTable.entries().length : 0,
+        classes: typeof semResult.classTable?.entries === 'function' ? semResult.classTable.entries().length : 0,
         actions: semResult.actions?.length || 0
       });
     } catch (error) {
@@ -181,11 +163,13 @@ export function compileSource(source) {
         symbolTable: { entries: () => [] },
         classTable: { entries: () => [] }
       });
-      symbolTables.push({ entries: [] });
-      classTables.push({ entries: [] });
       semanticExplanations.push([`[SEMANTICS] FATAL ERROR: ${error.message}`]);
     }
   }
+
+  // Use one final snapshot to avoid duplicating entries across multi-statement programs.
+  const symbolTables = [{ entries: sharedSymbolTable.entries() }];
+  const classTables = [{ entries: sharedClassTable.entries() }];
 
   console.log('[Compiler] Semantic Explanations:', semanticExplanations);
 
@@ -197,8 +181,8 @@ export function compileSource(source) {
 
   console.log('[Compiler] Compilation complete:', {
     hasErrors,
-    totalSymbols: symbolTables.reduce((sum, st) => sum + st.entries.length, 0),
-    totalClasses: classTables.reduce((sum, ct) => sum + ct.entries.length, 0)
+    totalSymbols: symbolTables[0].entries.length,
+    totalClasses: classTables[0].entries.length
   });
 
   return {
