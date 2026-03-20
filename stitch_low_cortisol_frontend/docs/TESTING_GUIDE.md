@@ -163,3 +163,66 @@ Semantic Analysis Complete.
 10. ✅ **Memory Layout** information (width, offset)
 
 The frontend now uses **100% of your backend compiler functionality**!
+
+## Phase 6 Validation And Parity Verification
+
+### Automated checks
+
+Run these from project root:
+
+```bash
+npm test
+npm run build:browser
+```
+
+Coverage target for parity file: `tests/phase6.parity.test.ts`
+
+- Valid representative program
+- Syntax-issue representative program
+- Semantic-mismatch representative program
+- Expression-heavy representative program
+
+### Bundle contract verification
+
+Verify the frontend still compiles through the same bridge contract:
+
+1. `stitch_low_cortisol_frontend/app.js` still calls `compileSource` from `compiler.js`
+2. `stitch_low_cortisol_frontend/compiler.js` still returns the same top-level shape:
+   - `lexResult`
+   - `lexExplanation`
+   - `parseResults`
+   - `parseExplanations`
+   - `semanticResults`
+   - `semanticExplanations`
+   - `symbolTables`
+   - `classTables`
+   - `hasErrors`
+
+### Manual frontend checks (animation and responsiveness)
+
+1. Start frontend server and compile once on each view flow (IDE -> Lexer -> Parser/Semantics -> Results).
+2. Confirm moderate motion behavior:
+   - View entry transitions
+   - Panel refresh transitions
+   - Status/progress transitions
+3. Enable reduced-motion in OS/browser and re-check:
+   - Content remains complete and readable
+   - No blocked interactions
+4. Check desktop and mobile widths for layout stability.
+
+### Representative sources for parity spot-check
+
+```txt
+VALID
+int age:20.
+letters season:$Spring$.
+
+SYNTAX ISSUE
+decimal : x 12.
+
+SEMANTIC MISMATCH
+decimal amount:$text$.
+
+EXPRESSION HEAVY
+decimal total:2+3*4-5/5.
+```

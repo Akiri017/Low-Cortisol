@@ -12,6 +12,18 @@
     theme: {
       extend: {
         colors: {
+          "wood": "#7d5231",
+          "wood-deep": "#4a280a",
+          "parchment": "#fff6dd",
+          "parchment-deep": "#f2e8c9",
+          "meadow": "#91f78e",
+          "lake": "#54c7fc",
+          "ember": "#f95630",
+          "neutral-900": "#332f1d",
+          "neutral-700": "#615b47",
+          "neutral-500": "#7d7760",
+          "neutral-300": "#b4ad94",
+          "neutral-100": "#ece2c1",
           "surface": "#fff6dd",
           "tertiary-container": "#54c7fc",
           "on-secondary-fixed": "#00480f",
@@ -67,7 +79,8 @@
         fontFamily: {
           "headline": ["Plus Jakarta Sans"],
           "body": ["Be Vietnam Pro"],
-          "label": ["Space Grotesk"]
+          "label": ["Space Grotesk"],
+          "tech": ["Space Grotesk"]
         },
         borderRadius: {"DEFAULT": "0.125rem", "lg": "0.25rem", "xl": "0.5rem", "full": "0.75rem"},
       },
@@ -75,22 +88,252 @@
   }
 </script>
 <style>
+  :root {
+    --sd-wood-600: #6f4626;
+    --sd-wood-700: #7d5231;
+    --sd-wood-900: #4a280a;
+    --sd-parchment-100: #fff6dd;
+    --sd-parchment-200: #f2e8c9;
+    --sd-parchment-300: #ece2c1;
+    --sd-meadow-400: #91f78e;
+    --sd-lake-400: #54c7fc;
+    --sd-ember-500: #f95630;
+    --sd-neutral-900: #332f1d;
+    --sd-neutral-700: #615b47;
+    --sd-neutral-500: #7d7760;
+    --sd-neutral-300: #b4ad94;
+    --sd-shadow-sm: 0 2px 0 rgba(125, 82, 49, 0.14);
+    --sd-shadow-md: 0 8px 20px rgba(74, 40, 10, 0.12);
+    --sd-shadow-lg: 0 12px 28px rgba(74, 40, 10, 0.2);
+    --sd-shadow-pixel: 4px 4px 0 rgba(125, 82, 49, 0.2);
+  }
   .material-symbols-outlined {
     font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24;
   }
+  .type-heading {
+    font-family: 'Plus Jakarta Sans', sans-serif;
+    letter-spacing: -0.01em;
+  }
+  .type-body {
+    font-family: 'Be Vietnam Pro', sans-serif;
+  }
+  .type-tech {
+    font-family: 'Space Grotesk', sans-serif;
+    text-transform: uppercase;
+    letter-spacing: 0.08em;
+    font-size: 0.74rem;
+  }
+  .texture-paper-dots {
+    background-color: var(--sd-parchment-200);
+    background-image: radial-gradient(rgba(125, 82, 49, 0.08) 1px, transparent 0);
+    background-size: 20px 20px;
+  }
+  .texture-linen {
+    background-image: repeating-linear-gradient(
+      0deg,
+      rgba(97, 91, 71, 0.05),
+      rgba(97, 91, 71, 0.05) 1px,
+      transparent 1px,
+      transparent 6px
+    );
+  }
+  .texture-wood-lines {
+    background-image: linear-gradient(125deg, rgba(255, 255, 255, 0.08), rgba(74, 40, 10, 0.06));
+  }
   .parchment-texture {
     background-color: #ffffff;
-    background-image: radial-gradient(#f2e8c9 1px, transparent 0);
+    background-image: radial-gradient(var(--sd-parchment-200) 1px, transparent 0);
     background-size: 24px 24px;
   }
   .wood-grain {
-    background: linear-gradient(135deg, #7d5231 0%, #6f4626 100%);
+    background: linear-gradient(135deg, var(--sd-wood-700) 0%, var(--sd-wood-600) 100%);
   }
   .cauldron-glow {
     box-shadow: 0 -20px 50px -10px rgba(145, 247, 142, 0.3);
   }
+  .shadow-tier-1 {
+    box-shadow: var(--sd-shadow-sm);
+  }
+  .shadow-tier-2 {
+    box-shadow: var(--sd-shadow-md);
+  }
+  .shadow-tier-3 {
+    box-shadow: var(--sd-shadow-lg);
+  }
   .pixel-shadow {
-    box-shadow: 4px 4px 0px 0px rgba(125, 82, 49, 0.2);
+    box-shadow: var(--sd-shadow-pixel);
+  }
+  .ui-card-shell {
+    background: linear-gradient(180deg, #faf0d3 0%, #f2e8c9 100%);
+    border: 1px solid rgba(125, 82, 49, 0.12);
+    border-radius: 0.9rem;
+    box-shadow: var(--sd-shadow-md);
+  }
+  .ui-card-shell-soft {
+    background: #f7edd0;
+    border: 1px solid rgba(125, 82, 49, 0.1);
+    border-radius: 0.78rem;
+    box-shadow: var(--sd-shadow-sm);
+  }
+  .ui-status-badge {
+    border: 1px solid rgba(51, 47, 29, 0.1);
+    border-radius: 9999px;
+    padding: 0.24rem 0.6rem;
+    backdrop-filter: blur(2px);
+  }
+  .ui-ribbon {
+    position: relative;
+    overflow: hidden;
+    border-radius: 0.9rem;
+    border: 1px solid rgba(255, 255, 255, 0.2);
+  }
+  .ui-panel-header {
+    display: flex;
+    align-items: center;
+    gap: 0.7rem;
+    margin-bottom: 1.15rem;
+    padding-bottom: 0.8rem;
+    border-bottom: 1px solid rgba(125, 82, 49, 0.15);
+  }
+  .ui-table-row {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 0.7rem;
+    padding: 0.72rem 0.9rem;
+    border-radius: 0.55rem;
+    border: 1px solid rgba(125, 82, 49, 0.12);
+    background: #fffdf7;
+    transition: background-color 160ms ease, transform 160ms ease;
+  }
+  .ui-table-row:hover {
+    background: #fff7e4;
+    transform: translateY(-1px);
+  }
+  .ide-atmosphere {
+    position: relative;
+    isolation: isolate;
+  }
+  .ide-atmosphere::before {
+    content: '';
+    position: absolute;
+    inset: 0;
+    z-index: -1;
+    background: radial-gradient(circle at 78% 12%, rgba(84, 199, 252, 0.2), transparent 45%),
+      radial-gradient(circle at 16% 78%, rgba(145, 247, 142, 0.14), transparent 42%);
+    pointer-events: none;
+  }
+  .compile-cta {
+    position: relative;
+    transform-origin: center;
+  }
+  .compile-cta::after {
+    content: '';
+    position: absolute;
+    inset: -6px;
+    border-radius: 0.8rem;
+    border: 1px solid rgba(250, 192, 151, 0.5);
+    opacity: 0;
+    transition: opacity 200ms ease;
+    pointer-events: none;
+  }
+  .compile-cta:hover::after,
+  .compile-cta.is-compiling::after {
+    opacity: 1;
+  }
+  .compile-cta.is-compiling {
+    animation: compileBreath 900ms ease-in-out infinite;
+  }
+  .diag-panel {
+    transition: border-color 200ms ease, box-shadow 200ms ease, background-color 200ms ease;
+  }
+  .diag-panel.state-compiling {
+    border-color: rgba(84, 199, 252, 0.35);
+    box-shadow: 0 0 0 1px rgba(84, 199, 252, 0.28);
+  }
+  .diag-panel.state-success {
+    border-color: rgba(145, 247, 142, 0.45);
+    box-shadow: 0 0 0 1px rgba(145, 247, 142, 0.3);
+  }
+  .diag-panel.state-error {
+    border-color: rgba(249, 86, 48, 0.45);
+    box-shadow: 0 0 0 1px rgba(249, 86, 48, 0.3);
+  }
+  .meta-panel {
+    background: linear-gradient(180deg, #f7edd0 0%, #f0e4c1 100%);
+    border: 1px solid rgba(125, 82, 49, 0.12);
+    border-radius: 0.75rem;
+  }
+  .meta-row {
+    padding-bottom: 0.42rem;
+    border-bottom: 1px dashed rgba(125, 82, 49, 0.18);
+  }
+  .meta-row:last-child {
+    border-bottom: none;
+    padding-bottom: 0;
+  }
+  .token-health {
+    transition: transform 180ms ease, box-shadow 180ms ease, border-color 180ms ease;
+  }
+  .token-health-good:hover {
+    box-shadow: 0 12px 18px -14px rgba(0, 107, 27, 0.7);
+  }
+  .token-health-warning {
+    animation: tokenWarn 850ms ease;
+  }
+  .parse-card {
+    border-radius: 0.8rem;
+    background: #fffdf7;
+    box-shadow: var(--sd-shadow-sm);
+  }
+  .parse-card-valid {
+    box-shadow: inset 0 0 0 1px rgba(145, 247, 142, 0.28), var(--sd-shadow-sm);
+  }
+  .parse-card-invalid {
+    box-shadow: inset 0 0 0 1px rgba(249, 86, 48, 0.28), var(--sd-shadow-sm);
+  }
+  .semantic-progress-wrap {
+    overflow: hidden;
+    border-radius: 9999px;
+  }
+  .semantic-progress-fill {
+    width: 0;
+    transition: width 360ms ease;
+  }
+  .results-banner {
+    backdrop-filter: blur(2px);
+    transition: border-color 220ms ease, box-shadow 220ms ease;
+    border: 1px solid rgba(255, 255, 255, 0.25);
+  }
+  .results-banner.state-success {
+    box-shadow: 0 12px 28px -24px rgba(145, 247, 142, 0.85);
+  }
+  .results-banner.state-error {
+    box-shadow: 0 12px 28px -24px rgba(249, 86, 48, 0.85);
+  }
+  .row-update-flash {
+    animation: rowFlash 520ms ease;
+  }
+  .diag-row {
+    transition: transform 180ms ease, border-color 180ms ease;
+  }
+  .diag-row:hover {
+    transform: translateX(2px);
+  }
+  .view-active {
+    position: relative;
+  }
+  body.lifecycle-compiling #statusDot {
+    box-shadow: 0 0 0 5px rgba(84, 199, 252, 0.16);
+  }
+  body.lifecycle-success #statusDot {
+    box-shadow: 0 0 0 5px rgba(145, 247, 142, 0.18);
+  }
+  body.lifecycle-warning #statusDot {
+    box-shadow: 0 0 0 5px rgba(255, 170, 0, 0.18);
+  }
+  body.lifecycle-error #statusDot {
+    box-shadow: 0 0 0 5px rgba(249, 86, 48, 0.2);
   }
   .view-content {
     transition: opacity 220ms ease, transform 220ms ease;
@@ -151,6 +394,30 @@
       opacity: 1;
     }
   }
+  @keyframes compileBreath {
+    0%, 100% {
+      transform: translateY(0) scale(1);
+    }
+    50% {
+      transform: translateY(-1px) scale(1.01);
+    }
+  }
+  @keyframes tokenWarn {
+    0%, 100% {
+      transform: translateY(0);
+    }
+    50% {
+      transform: translateY(-2px);
+    }
+  }
+  @keyframes rowFlash {
+    0% {
+      background-color: rgba(145, 247, 142, 0.24);
+    }
+    100% {
+      background-color: transparent;
+    }
+  }
   @keyframes pulse {
     0%, 100% { transform: scale(1); }
     50% { transform: scale(1.05); }
@@ -174,22 +441,22 @@
   }
 </style>
 </head>
-<body class="bg-surface font-body text-on-surface min-h-screen">
+<body class="bg-surface texture-linen font-body text-on-surface min-h-screen">
 <!-- TopAppBar Shell -->
-<nav class="fixed top-0 w-full z-50 flex justify-between items-center px-6 bg-[#f2e8c9] dark:bg-[#4a442d] h-16 shadow-[0_4px_0_rgba(125,82,49,0.1)]">
+<nav class="fixed top-0 w-full z-50 flex justify-between items-center px-6 bg-surface-container h-16 shadow-tier-1 texture-paper-dots">
   <div class="flex items-center gap-8">
     <span class="text-2xl font-black text-[#7d5231] dark:text-[#f2e8c9] font-headline tracking-tighter">StardewIDE</span>
   </div>
   <div class="flex items-center gap-4">
     <span class="material-symbols-outlined text-primary cursor-pointer hover:scale-110 duration-150">terminal</span>
-    <div class="w-8 h-8 rounded-lg border-2 border-primary-container shadow-sm bg-primary-container flex items-center justify-center">
-      <span class="material-symbols-outlined text-primary">person</span>
+    <div class="w-8 h-8 rounded-lg border-2 border-primary-container shadow-sm bg-primary-container overflow-hidden">
+      <img src="assets/user_icon.png" alt="User profile" class="w-full h-full object-cover"/>
     </div>
   </div>
 </nav>
 
 <!-- SideNavBar Shell -->
-<aside class="fixed left-0 top-16 h-full flex flex-col py-4 bg-[#f2e8c9] dark:bg-[#2d2a1c] w-64 shadow-inner z-40">
+<aside class="fixed left-0 top-16 h-full flex flex-col py-4 bg-surface-container w-64 shadow-inner z-40 texture-paper-dots">
   <div class="px-6 mb-8 flex items-center gap-4">
     <div class="w-12 h-12 bg-secondary-container flex items-center justify-center rounded-lg shadow-sm">
       <span class="material-symbols-outlined text-on-secondary-container" style="font-variation-settings: 'FILL' 1;">terminal</span>
@@ -226,20 +493,20 @@
 </aside>
 
 <!-- Main Content Canvas -->
-<main class="ml-64 pt-16 pb-10 px-12 min-h-screen">
+<main class="ml-64 pt-16 pb-12 px-10 lg:px-12 min-h-screen">
 
   <!-- IDE View -->
   <div id="view-ide" class="view-content">
-    <div class="relative -mx-12 mb-12 py-8 px-12 bg-tertiary shadow-[0_10px_20px_rgba(0,99,132,0.2)] overflow-hidden">
+    <div class="relative w-full mb-12 py-8 px-8 md:px-12 bg-tertiary shadow-[0_10px_20px_rgba(0,99,132,0.2)] overflow-hidden ui-ribbon min-h-[128px] flex flex-col items-start justify-center gap-1" style="background-image: linear-gradient(rgba(0, 72, 95, 0.62), rgba(0, 72, 95, 0.62)), url('assets/banners/IDE_banner.png'); background-size: cover; background-position: center;">
       <div class="absolute top-0 right-0 opacity-10 scale-150">
         <span class="material-symbols-outlined text-[120px]">terminal</span>
       </div>
-      <h1 class="font-headline text-5xl font-extrabold text-on-tertiary tracking-tighter">The Farmhouse Terminal</h1>
-        <p class="font-label text-tertiary-container mt-2 tracking-widest uppercase text-sm">Low Cortisol Programming Language Compiler // CS0035 FInal Project</p>
+      <h1 class="font-headline text-4xl font-extrabold text-on-tertiary tracking-tighter">The Farmhouse Terminal</h1>
+      <p class="font-label text-tertiary-container tracking-widest uppercase text-xs md:text-sm leading-tight">Low Cortisol Programming Language Compiler // CS0035 Final Project</p>
     </div>
     <div class="grid grid-cols-12 gap-10 items-start">
       <div class="col-span-8 space-y-6">
-        <div class="relative bg-surface-container-high p-4 rounded-xl shadow-2xl overflow-hidden border-8 border-primary-dim/10">
+        <div class="relative ui-card-shell p-4 overflow-hidden border-8 border-primary-dim/10 ide-atmosphere">
           <div class="absolute top-4 right-6 flex items-center gap-4 z-10 pointer-events-none opacity-80">
             <div class="w-12 h-12 bg-tertiary-dim rounded-full flex items-center justify-center shadow-inner" title="Morning Coffee">
               <span class="material-symbols-outlined text-on-tertiary">coffee</span>
@@ -256,7 +523,7 @@ int age : 20.
 letters season : 'Spring'." spellcheck="false">int age : 20.</textarea>
           </div>
         </div>
-        <div class="flex justify-between items-center bg-surface-container p-4 rounded-xl">
+        <div class="flex justify-between items-center ui-card-shell-soft p-4">
           <div class="flex gap-4">
             <button class="bg-surface-container-highest px-4 py-2 rounded-lg font-label text-primary hover:bg-primary hover:text-on-primary transition-all flex items-center gap-2" onclick="loadExample()">
               <span class="material-symbols-outlined text-sm">folder_open</span>
@@ -267,19 +534,19 @@ letters season : 'Spring'." spellcheck="false">int age : 20.</textarea>
               Clear
             </button>
           </div>
-          <button id="compileBtn" onclick="compile()" class="group flex items-center gap-4 wood-grain text-on-primary pl-6 pr-8 py-4 rounded-lg font-headline font-black text-xl shadow-[0_8px_0_#4a280a] hover:translate-y-1 hover:shadow-[0_4px_0_#4a280a] active:translate-y-2 active:shadow-none transition-all">
+          <button id="compileBtn" onclick="compile()" class="compile-cta group flex items-center gap-4 wood-grain text-on-primary pl-6 pr-8 py-4 rounded-lg font-headline font-black text-xl shadow-[0_8px_0_#4a280a] hover:translate-y-1 hover:shadow-[0_4px_0_#4a280a] active:translate-y-2 active:shadow-none transition-all">
             <span class="material-symbols-outlined text-4xl group-hover:rotate-12 transition-transform" style="font-variation-settings: 'FILL' 1;">hand_bones</span>
             Compile Code
           </button>
         </div>
       </div>
       <div class="col-span-4 flex flex-col gap-6">
-        <div class="bg-surface-container-high p-6 rounded-xl border border-outline-variant/15">
+        <div id="diagnosticCard" class="diag-panel ui-card-shell p-6 border border-outline-variant/20">
           <div class="flex justify-between items-start mb-6">
             <div class="bg-secondary-fixed w-10 h-10 flex items-center justify-center rounded-lg shadow-sm">
               <span class="material-symbols-outlined text-on-secondary-fixed">monitoring</span>
             </div>
-            <span id="statusBadge" class="status-badge-transition font-label text-xs font-bold text-secondary uppercase tracking-widest px-2 py-1 bg-secondary-container rounded">Ready</span>
+            <span id="statusBadge" class="ui-status-badge status-badge-transition font-label text-xs font-bold text-secondary uppercase tracking-widest bg-secondary-container">Ready</span>
           </div>
           <h4 class="font-headline font-bold text-primary text-lg mb-2">Terminal Diagnostics</h4>
           <p id="diagnosticText" class="text-on-surface-variant text-sm leading-relaxed mb-4">The wood is dry and the ink is fresh. Everything is ready for compilation.</p>
@@ -293,14 +560,14 @@ letters season : 'Spring'." spellcheck="false">int age : 20.</textarea>
             </div>
           </div>
         </div>
-        <div class="bg-primary p-6 rounded-xl text-on-primary">
+        <div class="bg-primary p-6 rounded-xl text-on-primary shadow-tier-2 texture-wood-lines">
           <div class="flex items-center gap-3 mb-4">
             <span class="material-symbols-outlined">lightbulb</span>
             <h4 class="font-headline font-bold">Pro Farmer Tip</h4>
           </div>
           <p class="text-sm opacity-90 leading-relaxed italic">"Always ensure your delimiters are like well-planted seeds. The period (.) marks the end of each instruction!"</p>
         </div>
-        <div id="processBreakdownPrompt" class="hidden bg-secondary-container text-on-secondary-container p-5 rounded-xl border border-secondary/20">
+        <div id="processBreakdownPrompt" class="hidden bg-secondary-container text-on-secondary-container p-5 rounded-xl border border-secondary/20 shadow-tier-1">
           <h4 class="font-headline font-bold text-secondary mb-2">Compilation Flow Ready</h4>
           <p class="text-sm leading-relaxed">Compilation has started processing your program. Visit the Lexer, Parser, and Semantics pages to review each stage of the breakdown.</p>
         </div>
@@ -310,13 +577,13 @@ letters season : 'Spring'." spellcheck="false">int age : 20.</textarea>
 
   <!-- Lexer View -->
   <div id="view-lexer" class="view-content hidden">
-    <div class="relative w-full bg-tertiary text-on-tertiary px-8 py-6 mb-12 -ml-4 rounded-r-xl shadow-lg">
+    <div class="relative w-full bg-tertiary text-on-tertiary px-8 md:px-12 py-8 mb-12 rounded-xl shadow-lg ui-ribbon min-h-[128px] flex flex-col items-start justify-center gap-1" style="background-image: linear-gradient(rgba(81, 53, 5, 0.58), rgba(81, 53, 5, 0.58)), url('assets/banners/Lexer_Banner.png'); background-size: cover; background-position: center;">
       <h1 class="font-headline text-3xl font-extrabold tracking-tight">Pierre's General Store: Lexical Inventory</h1>
-      <p class="font-body opacity-90 mt-1">Analyzing the harvested source code for lexical tokens.</p>
+      <p class="font-body opacity-90 text-base leading-tight">Analyzing the harvested source code for lexical tokens.</p>
     </div>
     <div class="grid grid-cols-1 lg:grid-cols-12 gap-12">
       <section class="lg:col-span-4 space-y-6">
-        <div class="bg-surface-container-high p-6 rounded-lg shadow-inner">
+        <div class="ui-card-shell p-6 shadow-inner">
           <div class="flex items-center gap-3 mb-4">
             <div class="w-8 h-8 bg-secondary-fixed flex items-center justify-center rounded">
               <span class="material-symbols-outlined text-on-secondary-fixed text-lg">description</span>
@@ -325,20 +592,20 @@ letters season : 'Spring'." spellcheck="false">int age : 20.</textarea>
           </div>
           <div id="lexerSource" class="bg-surface-container-lowest p-4 rounded border-2 border-dashed border-outline-variant font-mono text-sm leading-relaxed text-on-surface-variant"></div>
         </div>
-        <div class="bg-surface-container-highest p-6 rounded-lg">
+        <div class="meta-panel p-6">
           <h3 class="font-headline font-bold text-primary mb-4 flex items-center gap-2">
             <span class="material-symbols-outlined">info</span> Shop Metadata
           </h3>
           <ul class="space-y-3 text-sm font-label uppercase tracking-wider text-on-surface-variant">
-            <li class="flex justify-between border-b border-outline-variant/20 pb-1">
+            <li class="meta-row flex justify-between">
               <span>Analysis Time</span>
               <span class="text-primary font-bold" id="lexTime">--</span>
             </li>
-            <li class="flex justify-between border-b border-outline-variant/20 pb-1">
+            <li class="meta-row flex justify-between">
               <span>Tokens Found</span>
               <span class="text-primary font-bold" id="tokenCount">--</span>
             </li>
-            <li class="flex justify-between border-b border-outline-variant/20 pb-1">
+            <li class="meta-row flex justify-between">
               <span>Lexical Status</span>
               <span class="text-secondary font-bold" id="lexStatus">--</span>
             </li>
@@ -353,11 +620,11 @@ letters season : 'Spring'." spellcheck="false">int age : 20.</textarea>
 
   <!-- Parser/Semantics View -->
   <div id="view-parser" class="view-content hidden">
-    <div class="relative w-full bg-tertiary py-6 px-12 -ml-6 shadow-xl mb-16">
+    <div class="relative w-full bg-tertiary py-8 px-8 md:px-12 shadow-xl mb-12 ui-ribbon min-h-[128px] flex items-center" style="background-image: linear-gradient(rgba(47, 24, 85, 0.58), rgba(47, 24, 85, 0.58)), url('assets/banners/Parser_Banner.png'); background-size: cover; background-position: center;">
       <h1 class="text-on-tertiary font-headline text-4xl font-extrabold tracking-tight">The Wizard's Tower</h1>
     </div>
     <div class="grid grid-cols-12 gap-8">
-      <div class="col-span-12 lg:col-span-5 bg-surface-container-high rounded-xl overflow-hidden shadow-2xl flex flex-col">
+      <div class="col-span-12 lg:col-span-5 ui-card-shell overflow-hidden shadow-tier-3 flex flex-col">
         <div class="bg-primary text-on-primary p-6 flex justify-between items-center">
           <div class="flex items-center gap-3">
             <span class="material-symbols-outlined">menu_book</span>
@@ -366,7 +633,7 @@ letters season : 'Spring'." spellcheck="false">int age : 20.</textarea>
         </div>
         <div id="parseResults" class="p-8 space-y-6 flex-1 bg-[url('https://www.transparenttextures.com/patterns/paper-fibers.png')]"></div>
       </div>
-      <div class="col-span-12 lg:col-span-7 bg-on-background rounded-xl p-8 relative overflow-hidden cauldron-glow min-h-[400px]">
+      <div class="col-span-12 lg:col-span-7 bg-on-background rounded-xl p-8 relative overflow-hidden cauldron-glow min-h-[400px] shadow-tier-2">
         <div class="relative z-10 flex flex-col h-full">
           <div class="flex justify-between items-start mb-12">
             <div>
@@ -389,7 +656,7 @@ letters season : 'Spring'." spellcheck="false">int age : 20.</textarea>
 
   <!-- Results View -->
   <div id="view-results" class="view-content hidden">
-    <div class="relative w-full bg-tertiary text-white py-8 px-12 mb-12 shadow-lg flex flex-col md:flex-row items-center justify-between gap-6">
+    <div id="resultsBanner" class="results-banner relative w-full bg-tertiary text-white py-8 px-8 md:px-12 mb-12 shadow-lg flex flex-col md:flex-row items-center justify-between gap-6 ui-ribbon min-h-[128px]" style="background-image: linear-gradient(rgba(42, 69, 34, 0.58), rgba(42, 69, 34, 0.58)), url('assets/banners/Semantics_Banner.png'); background-size: cover; background-position: center;">
       <div class="flex items-center gap-6">
         <div id="resultIcon" class="w-16 h-16 bg-secondary-fixed rounded-full flex items-center justify-center border-4 border-white">
           <span class="material-symbols-outlined text-on-secondary-fixed text-4xl" style="font-variation-settings: 'FILL' 1;">verified</span>
@@ -403,19 +670,19 @@ letters season : 'Spring'." spellcheck="false">int age : 20.</textarea>
     <div class="grid grid-cols-1 lg:grid-cols-12 gap-8 items-start">
       <div class="lg:col-span-5 space-y-6">
         <div class="grid grid-cols-2 gap-4">
-          <div class="bg-surface-container p-4 rounded-lg flex flex-col gap-1 border-l-4 border-secondary">
+          <div class="ui-card-shell-soft p-4 flex flex-col gap-1 border-l-4 border-secondary">
             <span class="font-label text-xs uppercase tracking-widest text-on-surface-variant">Tokens</span>
             <span class="font-headline text-2xl font-bold text-secondary" id="resultsTokenCount">--</span>
           </div>
-          <div class="bg-surface-container p-4 rounded-lg flex flex-col gap-1 border-l-4 border-tertiary">
+          <div class="ui-card-shell-soft p-4 flex flex-col gap-1 border-l-4 border-tertiary">
             <span class="font-label text-xs uppercase tracking-widest text-on-surface-variant">Diagnostics</span>
             <span class="font-headline text-2xl font-bold text-tertiary" id="resultsDiagCount">--</span>
           </div>
         </div>
-        <div id="diagnosticsPanel" class="bg-surface-container-high rounded-xl p-6"></div>
+        <div id="diagnosticsPanel" class="ui-card-shell p-6"></div>
 
         <!-- Semantic Actions -->
-        <div class="bg-surface-container rounded-xl p-6 border-2 border-tertiary/20">
+        <div class="ui-card-shell-soft p-6 border-2 border-tertiary/20">
           <div class="flex items-center justify-between mb-4">
             <h3 class="font-headline text-xl font-bold text-tertiary flex items-center gap-2">
               <span class="material-symbols-outlined">psychology</span>
@@ -429,7 +696,7 @@ letters season : 'Spring'." spellcheck="false">int age : 20.</textarea>
       </div>
       <div class="lg:col-span-7 space-y-6">
         <!-- Symbol Table -->
-        <div class="bg-surface-container-high rounded-xl p-8 pixel-shadow border-4 border-secondary/20 relative">
+        <div class="ui-card-shell p-8 pixel-shadow border-4 border-secondary/20 relative">
           <div class="absolute -top-4 -left-4 w-12 h-12 bg-secondary flex items-center justify-center rounded-lg shadow-lg">
             <span class="material-symbols-outlined text-on-secondary">class</span>
           </div>
@@ -443,7 +710,7 @@ letters season : 'Spring'." spellcheck="false">int age : 20.</textarea>
         </div>
 
         <!-- Class Table -->
-        <div class="bg-surface-container-high rounded-xl p-8 pixel-shadow border-4 border-primary/20 relative">
+        <div class="ui-card-shell p-8 pixel-shadow border-4 border-primary/20 relative">
           <div class="absolute -top-4 -left-4 w-12 h-12 bg-primary flex items-center justify-center rounded-lg shadow-lg">
             <span class="material-symbols-outlined text-on-primary">class</span>
           </div>
@@ -462,7 +729,7 @@ letters season : 'Spring'." spellcheck="false">int age : 20.</textarea>
 </main>
 
 <!-- Footer Shell -->
-<footer class="fixed bottom-0 w-full z-[60] flex justify-between items-center px-8 bg-[#006384] dark:bg-[#004d66] h-10 shadow-[0_-4px_10px_rgba(0,0,0,0.1)]">
+<footer class="fixed bottom-0 w-full z-[60] flex justify-between items-center px-8 bg-[#006384] h-10 shadow-[0_-4px_10px_rgba(0,0,0,0.1)] texture-wood-lines">
   <div class="flex gap-6 items-center">
     <span class="font-label uppercase tracking-widest text-xs text-white">Spring, Year 1 - 6:00 AM</span>
   </div>
