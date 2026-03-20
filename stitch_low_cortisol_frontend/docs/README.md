@@ -119,6 +119,32 @@ Quick test:
    - Class table (if classes declared)
    - Semantic actions
 
+### Phase 6 Validation (Parity + Stability)
+
+Run from project root:
+
+```bash
+npm test
+npm run build:browser
+```
+
+Phase 6 parity test file:
+
+- `tests/phase6.parity.test.ts`
+
+This verifies representative behavior for:
+
+- Valid source
+- Syntax issue
+- Semantic mismatch
+- Expression-heavy source
+
+Then run manual UI checks using `TESTING_GUIDE.md` for:
+
+- Motion smoothness
+- Reduced-motion support
+- Mobile/desktop responsiveness
+
 ## 🔄 Rebuilding
 
 When you modify the TypeScript compiler source:

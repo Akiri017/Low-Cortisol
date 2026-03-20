@@ -5,8 +5,11 @@ const MOTION_CONFIG = {
   staggerDelayMs: 45,
   maxAnimatedElements: 12,
   refreshClass: 'motion-refresh',
-  staggerClass: 'motion-stagger'
+  staggerClass: 'motion-stagger',
+  stageDelayMs: 170
 };
+const STATUS_BADGE_BASE = 'ui-status-badge font-label text-xs font-bold uppercase tracking-widest';
+const LIFECYCLE_CLASSES = ['lifecycle-compiling', 'lifecycle-success', 'lifecycle-warning', 'lifecycle-error'];
 
 function prefersReducedMotion() {
   return window.matchMedia('(prefers-reduced-motion: reduce)').matches;
@@ -48,13 +51,95 @@ function updateCompileButtonState(isCompiling) {
   if (!compileBtn) return;
 
   if (isCompiling) {
-    compileBtn.classList.add('compiling');
+    compileBtn.classList.add('compiling', 'is-compiling');
     compileBtn.textContent = 'Compiling...';
     return;
   }
 
-  compileBtn.classList.remove('compiling');
+  compileBtn.classList.remove('compiling', 'is-compiling');
   compileBtn.textContent = 'Compile Code';
+}
+
+function setCompileVisualState(status) {
+  const diagnosticCard = document.getElementById('diagnosticCard');
+  const resultsBanner = document.getElementById('resultsBanner');
+  if (!diagnosticCard || !resultsBanner) return;
+
+  diagnosticCard.classList.remove('state-compiling', 'state-success', 'state-error');
+  resultsBanner.classList.remove('state-success', 'state-error');
+
+  if (status === 'compiling') {
+    diagnosticCard.classList.add('state-compiling');
+  } else if (status === 'success') {
+    diagnosticCard.classList.add('state-success');
+    resultsBanner.classList.add('state-success');
+  } else if (status === 'error') {
+    diagnosticCard.classList.add('state-error');
+    resultsBanner.classList.add('state-error');
+  }
+}
+
+function animateSemanticProgress(percent) {
+  const fill = document.getElementById('semanticProgressFill');
+  if (!fill) return;
+  if (prefersReducedMotion()) {
+    fill.style.width = `${percent}%`;
+    return;
+  }
+  fill.style.width = '0%';
+  requestAnimationFrame(() => {
+    fill.style.width = `${percent}%`;
+  });
+}
+
+function applyRowUpdateHighlights(container) {
+  if (!container || prefersReducedMotion()) return;
+  const rows = container.querySelectorAll('.ui-table-row');
+  rows.forEach((row, idx) => {
+    row.classList.remove('row-update-flash');
+    row.style.animationDelay = `${Math.min(idx, 10) * 35}ms`;
+    row.classList.add('row-update-flash');
+  });
+}
+
+function delayForMotion(ms) {
+  if (prefersReducedMotion()) return Promise.resolve();
+  return new Promise(resolve => setTimeout(resolve, ms));
+}
+
+function applyLifecycleState(state) {
+  const body = document.body;
+  if (!body) return;
+  body.classList.remove(...LIFECYCLE_CLASSES);
+  const stateClass = `lifecycle-${state}`;
+  if (LIFECYCLE_CLASSES.includes(stateClass)) {
+    body.classList.add(stateClass);
+  }
+}
+
+function applyViewStateClasses(activeViewName) {
+  document.querySelectorAll('.view-content').forEach(view => {
+    view.classList.remove('view-active');
+    if (view.id === `view-${activeViewName}`) {
+      view.classList.add('view-active');
+    }
+  });
+}
+
+function runViewSwitchTransition(selectedView, viewName) {
+  applyViewStateClasses(viewName);
+  if (!selectedView) return;
+  transitionIntoView(selectedView);
+}
+
+async function renderCompilationStages(results) {
+  updateLexerView(results.lexResult, results.lexExplanation);
+  await delayForMotion(MOTION_CONFIG.stageDelayMs);
+
+  updateParserView(results.parseResults, results.parseExplanations);
+  await delayForMotion(MOTION_CONFIG.stageDelayMs);
+
+  updateResultsView(results);
 }
 
 // Navigation
@@ -70,7 +155,7 @@ function switchView(viewName) {
   const selectedView = document.getElementById(`view-${viewName}`);
   if (selectedView) {
     selectedView.classList.remove('hidden');
-    transitionIntoView(selectedView);
+    runViewSwitchTransition(selectedView, viewName);
   }
 
   // Update nav items
@@ -100,6 +185,9 @@ document.addEventListener('DOMContentLoaded', () => {
   if (sidebarCompileBtn) {
     sidebarCompileBtn.addEventListener('click', compile);
   }
+
+  applyViewStateClasses(currentView);
+  applyLifecycleState('ready');
 });
 
 // Code editor functions
@@ -143,23 +231,24 @@ async function compile() {
     compileResults = compileSource(source);
 
     // Update all views with results
-    updateLexerView(compileResults.lexResult, compileResults.lexExplanation);
-    updateParserView(compileResults.parseResults, compileResults.parseExplanations);
-    updateResultsView(compileResults);
+    await renderCompilationStages(compileResults);
     showProcessBreakdownPrompt();
 
     // Show success or errors
     if (compileResults.hasErrors) {
       updateStatus('error', 'Compilation completed with errors', 60);
+      applyLifecycleState('warning');
       showNotification('Compilation completed with errors. Check the Semantics tab.', 'warning');
     } else {
       updateStatus('success', 'Compilation completed successfully!', 100);
+      applyLifecycleState('success');
       showNotification('Compilation successful! The Junimos are dancing!', 'success');
     }
 
   } catch (error) {
     console.error('Compilation error:', error);
     updateStatus('error', `Error: ${error.message}`, 0);
+    applyLifecycleState('error');
     showNotification(`Compilation failed: ${error.message}`, 'error');
   } finally {
     setTimeout(() => {
@@ -193,26 +282,34 @@ function updateStatus(status, message, efficiency) {
     statusBadge.classList.remove('status-pulse');
     statusDot.classList.remove('status-pulse');
   }, 420);
+  setCompileVisualState(status);
+  if (status === 'compiling') {
+    applyLifecycleState('compiling');
+  } else if (status === 'success') {
+    applyLifecycleState('success');
+  } else if (status === 'error') {
+    applyLifecycleState('error');
+  }
 
   // Update colors based on status
   if (status === 'success') {
     statusBadge.textContent = 'Success';
-    statusBadge.className = 'font-label text-xs font-bold text-secondary uppercase tracking-widest px-2 py-1 bg-secondary-container rounded';
+    statusBadge.className = `${STATUS_BADGE_BASE} text-secondary bg-secondary-container`;
     efficiencyBar.className = 'bg-secondary h-2 rounded-full transition-all duration-300 shadow-[0_0_8px_rgba(0,107,27,0.3)]';
     statusText.textContent = 'SUCCESS';
   } else if (status === 'error') {
     statusBadge.textContent = 'Error';
-    statusBadge.className = 'font-label text-xs font-bold text-error uppercase tracking-widest px-2 py-1 bg-error-container rounded';
+    statusBadge.className = `${STATUS_BADGE_BASE} text-error bg-error-container`;
     efficiencyBar.className = 'bg-error h-2 rounded-full transition-all duration-300';
     statusText.textContent = 'ERROR';
   } else if (status === 'compiling') {
     statusBadge.textContent = 'Compiling';
-    statusBadge.className = 'font-label text-xs font-bold text-tertiary uppercase tracking-widest px-2 py-1 bg-tertiary-container rounded';
+    statusBadge.className = `${STATUS_BADGE_BASE} text-tertiary bg-tertiary-container`;
     efficiencyBar.className = 'bg-tertiary h-2 rounded-full transition-all duration-300';
     statusText.textContent = 'COMPILING';
   } else {
     statusBadge.textContent = 'Ready';
-    statusBadge.className = 'font-label text-xs font-bold text-secondary uppercase tracking-widest px-2 py-1 bg-secondary-container rounded';
+    statusBadge.className = `${STATUS_BADGE_BASE} text-secondary bg-secondary-container`;
     efficiencyBar.className = 'bg-secondary h-2 rounded-full transition-all duration-300 shadow-[0_0_8px_rgba(0,107,27,0.3)]';
     statusText.textContent = 'READY';
   }
@@ -269,7 +366,7 @@ function updateLexerView(lexResult, lexExplanation) {
 
     const isUnknown = token.type === 'UNKNOWN';
     const tokenCard = document.createElement('div');
-    tokenCard.className = `group relative bg-surface-container rounded-lg p-1 transition-all hover:scale-[1.02] hover:shadow-xl ${isUnknown ? 'ring-2 ring-error' : ''}`;
+    tokenCard.className = `token-health ${isUnknown ? 'token-health-warning' : 'token-health-good'} group relative ui-card-shell-soft p-1 transition-all hover:scale-[1.02] hover:shadow-xl ${isUnknown ? 'ring-2 ring-error' : ''}`;
     tokenCard.innerHTML = `
       <div class="bg-surface-container-lowest h-full rounded-lg p-4 border-2 ${isUnknown ? 'border-error' : 'border-transparent'} group-hover:border-secondary-fixed">
         <div class="flex justify-center mb-4">
@@ -307,7 +404,8 @@ function updateParserView(parseResults, parseExplanations) {
 
   parseResults.forEach((result, index) => {
     const resultCard = document.createElement('div');
-    resultCard.className = 'p-6 bg-surface-container-lowest border-l-8 rounded-r-lg space-y-4';
+    resultCard.className = 'parse-card p-6 ui-card-shell-soft border-l-8 rounded-r-lg space-y-4';
+    resultCard.classList.add(result.ok ? 'parse-card-valid' : 'parse-card-invalid');
     resultCard.classList.add(result.ok ? 'border-secondary' : 'border-error');
 
     const explanation = parseExplanations && parseExplanations[index] ? parseExplanations[index] : [];
@@ -364,8 +462,12 @@ function updateParserView(parseResults, parseExplanations) {
       <div class="text-center">
         <p class="text-error text-sm font-bold">Syntax warnings found with recovery applied.</p>
         <p class="text-error-dim text-xs mt-2">Review parser cards and adjust statement patterns.</p>
+        <div class="semantic-progress-wrap w-full h-2 bg-surface-container-high rounded-full mt-4">
+          <div id="semanticProgressFill" class="semantic-progress-fill h-full bg-error rounded-full"></div>
+        </div>
       </div>
     `;
+    animateSemanticProgress(62);
   } else {
     semanticStatus.textContent = 'Analysis Complete';
     semanticInfo.innerHTML = `
@@ -373,10 +475,11 @@ function updateParserView(parseResults, parseExplanations) {
         <span class="text-secondary-fixed font-headline font-bold">Analysis Complete</span>
         <span class="text-secondary-fixed font-label text-xs">100% VALIDATED</span>
       </div>
-      <div class="w-full h-2 bg-on-background rounded-full overflow-hidden border border-secondary-fixed/30">
-        <div class="w-full h-full bg-secondary-fixed shadow-[0_0_10px_#91f78e]"></div>
+      <div class="semantic-progress-wrap w-full h-2 bg-on-background rounded-full overflow-hidden border border-secondary-fixed/30">
+        <div id="semanticProgressFill" class="semantic-progress-fill h-full bg-secondary-fixed shadow-[0_0_10px_#91f78e]"></div>
       </div>
     `;
+    animateSemanticProgress(100);
   }
 
   applyPanelRefresh(semanticInfo);
@@ -439,7 +542,7 @@ function updateResultsView(results) {
           }[diag.severity] || 'secondary';
 
           return `
-            <div class="p-4 bg-surface-container-lowest rounded-lg border-l-4 border-${severityColor}">
+            <div class="diag-row p-4 bg-surface-container-lowest rounded-lg border-l-4 border-${severityColor}">
               <div class="flex items-start gap-3">
                 <span class="material-symbols-outlined text-${severityColor}">
                   ${diag.severity === 'Error' ? 'error' : diag.severity === 'Warning' ? 'warning' : 'info'}
@@ -467,7 +570,7 @@ function updateResultsView(results) {
         ${results.symbolTables.flatMap((st, tableIndex) =>
           st.entries.map(entry => `
             <div class="bg-surface-container-lowest rounded-lg p-6 border-2 border-primary/20">
-              <div class="flex items-center gap-3 mb-4 pb-3 border-b border-outline-variant/20">
+              <div class="ui-panel-header">
                 <div class="w-10 h-10 bg-primary rounded flex items-center justify-center">
                   <span class="material-symbols-outlined text-on-primary">class</span>
                 </div>
@@ -475,7 +578,7 @@ function updateResultsView(results) {
               </div>
               <div class="space-y-2">
                 <p class="font-label text-xs uppercase tracking-widest text-on-surface-variant mb-3">Symbol Details:</p>
-                <div class="flex items-center justify-between p-3 bg-surface rounded border border-outline-variant/10">
+                <div class="ui-table-row">
                   <div class="flex items-center gap-2">
                     <span class="material-symbols-outlined text-sm text-primary">class</span>
                     <span class="font-headline font-bold text-sm">${escapeHtml(entry.name)}</span>
@@ -497,6 +600,7 @@ function updateResultsView(results) {
   }
   applyPanelRefresh(symbolTableContent);
   applyStaggeredReveal(symbolTableContent.children);
+  applyRowUpdateHighlights(symbolTableContent);
 
   // Update class table
   if (results.classTables && results.classTables.length > 0 && results.classTables.some(ct => ct.entries.length > 0)) {
@@ -505,7 +609,7 @@ function updateResultsView(results) {
         ${results.classTables.flatMap((ct, tableIndex) =>
           ct.entries.map(classEntry => `
             <div class="bg-surface-container-lowest rounded-lg p-6 border-2 border-primary/20">
-              <div class="flex items-center gap-3 mb-4 pb-3 border-b border-outline-variant/20">
+              <div class="ui-panel-header">
                 <div class="w-10 h-10 bg-primary rounded flex items-center justify-center">
                   <span class="material-symbols-outlined text-on-primary">class</span>
                 </div>
@@ -515,7 +619,7 @@ function updateResultsView(results) {
                 <div class="space-y-2">
                   <p class="font-label text-xs uppercase tracking-widest text-on-surface-variant mb-3">Fields:</p>
                   ${classEntry.fields.map(field => `
-                    <div class="flex items-center justify-between p-3 bg-surface rounded border border-outline-variant/10">
+                    <div class="ui-table-row">
                       <div class="flex items-center gap-2">
                         <span class="material-symbols-outlined text-sm text-primary">label</span>
                         <span class="font-headline font-bold text-sm">${escapeHtml(field.name)}</span>
@@ -540,6 +644,7 @@ function updateResultsView(results) {
   }
   applyPanelRefresh(classTableContent);
   applyStaggeredReveal(classTableContent.children);
+  applyRowUpdateHighlights(classTableContent);
 
   // Update semantic actions
   const allActions = results.semanticResults.flatMap(r => r.actions || []);
@@ -570,7 +675,7 @@ function updateResultsView(results) {
       }
 
       return `
-        <div class="flex items-start gap-3 p-3 bg-surface-container-lowest rounded text-sm">
+        <div class="ui-table-row text-sm">
           <span class="material-symbols-outlined text-${color} text-lg">${icon}</span>
           <span class="flex-1 text-on-surface-variant">${escapeHtml(actionText)}</span>
         </div>
@@ -579,6 +684,7 @@ function updateResultsView(results) {
   }
   applyPanelRefresh(semanticActions);
   applyStaggeredReveal(semanticActions.children);
+  applyRowUpdateHighlights(semanticActions);
 }
 
 // Utility functions
