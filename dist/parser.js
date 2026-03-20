@@ -99,7 +99,7 @@ class Parser {
             return { statement: this.parseAssignment(), expectedRule: '[DATATYPE] [IDENTIFIER] [ASSIGN_OPERATOR] [LITERAL] [DELIMITER]' };
         }
         if (first.type === token_1.TokenType.OutputKeyword) {
-            return { statement: this.parseOutput(), expectedRule: '[OUTPUT_KEYWORD] [VALUE] [DELIMITER]' };
+            return { statement: this.parseOutput(), expectedRule: '[OUTPUT_KEYWORD] [EXPR] [DELIMITER]' };
         }
         if (first.type === token_1.TokenType.IfKeyword) {
             return { statement: this.parseIf(), expectedRule: '[IF] [EXPR] [COMPARE_OP] [EXPR] [LBRACE] <statements> [RBRACE] [DELIMITER]' };
@@ -390,17 +390,22 @@ class Parser {
     parseOutput() {
         const kwTok = this.expect(token_1.TokenType.OutputKeyword, 'an OUTPUT_KEYWORD');
         const valueTok = this.peek();
-        let value = null;
-        if (valueTok.type === token_1.TokenType.Identifier ||
-            LITERAL_TYPES.has(valueTok.type)) {
-            value = this.consume();
+        let expression = null;
+        if (valueTok.type === token_1.TokenType.StringLiteral) {
+            expression = { kind: 'StringLiteralExpr', token: this.consume() };
+        }
+        else if (valueTok.type === token_1.TokenType.CharLiteral) {
+            expression = { kind: 'CharLiteralExpr', token: this.consume() };
         }
         else {
+            expression = this.parseNumericExpression();
+        }
+        if (!expression) {
             if (valueTok.type === token_1.TokenType.EOF) {
-                this.errorAtEnd('Expected a value after OUTPUT_KEYWORD, but reached end of input.');
+                this.errorAtEnd('Expected a value or expression after OUTPUT_KEYWORD, but reached end of input.');
             }
             else {
-                this.errorAt(valueTok, `Expected a value after OUTPUT_KEYWORD, but found ${valueTok.type} ('${valueTok.lexeme}').`);
+                this.errorAt(valueTok, `Expected a value or expression after OUTPUT_KEYWORD, but found ${valueTok.type} ('${valueTok.lexeme}').`);
             }
         }
         const delimTok = this.peek();
@@ -424,7 +429,7 @@ class Parser {
                 this.errorAt(delimTok, `Expected statement delimiter '.', but found ${delimTok.type} ('${delimTok.lexeme}').`);
             }
         }
-        if (!kwTok || !value || !delimOk)
+        if (!kwTok || !expression || !delimOk)
             return null;
         const kwLex = kwTok.lexeme;
         const kw = kwLex;
@@ -435,7 +440,7 @@ class Parser {
         return {
             kind: 'OutputStatement',
             keyword: kw,
-            value,
+            expression,
             delimiter: '.',
         };
     }

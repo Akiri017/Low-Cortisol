@@ -11,6 +11,56 @@ const MOTION_CONFIG = {
 const STATUS_BADGE_BASE = 'ui-status-badge font-label text-xs font-bold uppercase tracking-widest';
 const LIFECYCLE_CLASSES = ['lifecycle-compiling', 'lifecycle-success', 'lifecycle-warning', 'lifecycle-error'];
 
+function normalizeSeverity(severity) {
+  return String(severity || '').toLowerCase();
+}
+
+function isErrorSeverity(severity) {
+  return normalizeSeverity(severity) === 'error';
+}
+
+function isWarningSeverity(severity) {
+  return normalizeSeverity(severity) === 'warning';
+}
+
+function collectCompilationDiagnostics(results) {
+  return [
+    ...(results?.lexResult?.diagnostics || []),
+    ...((results?.parseResults || []).flatMap(r => r.diagnostics || [])),
+    ...((results?.semanticResults || []).flatMap(r => r.diagnostics || []))
+  ];
+}
+
+function getCompilationHealth(results) {
+  const allDiagnostics = collectCompilationDiagnostics(results);
+  const hasPanicRecoveries = (results?.parseResults || []).some(parseResult =>
+    (parseResult.recoveries || []).some(recovery => recovery.strategy === 'Panic-Mode')
+  );
+  const recoveryCount = (results?.parseResults || []).reduce((total, parseResult) => {
+    const count = Array.isArray(parseResult.recoveries) ? parseResult.recoveries.length : 0;
+    return total + count;
+  }, 0);
+
+  const hasErrors =
+    Boolean(results?.hasErrors) ||
+    hasPanicRecoveries ||
+    allDiagnostics.some(diag => isErrorSeverity(diag.severity)) ||
+    (results?.parseResults || []).some(r => !r.ok) ||
+    (results?.semanticResults || []).some(r => !r.ok);
+
+  const hasWarnings = allDiagnostics.some(diag => isWarningSeverity(diag.severity));
+  const hasRecoveries = recoveryCount > 0;
+
+  return {
+    hasErrors,
+    hasPanicRecoveries,
+    hasWarnings,
+    hasRecoveries,
+    recoveryCount,
+    allDiagnostics
+  };
+}
+
 function prefersReducedMotion() {
   return window.matchMedia('(prefers-reduced-motion: reduce)').matches;
 }
@@ -65,14 +115,17 @@ function setCompileVisualState(status) {
   const resultsBanner = document.getElementById('resultsBanner');
   if (!diagnosticCard || !resultsBanner) return;
 
-  diagnosticCard.classList.remove('state-compiling', 'state-success', 'state-error');
-  resultsBanner.classList.remove('state-success', 'state-error');
+  diagnosticCard.classList.remove('state-compiling', 'state-success', 'state-warning', 'state-error');
+  resultsBanner.classList.remove('state-success', 'state-warning', 'state-error');
 
   if (status === 'compiling') {
     diagnosticCard.classList.add('state-compiling');
   } else if (status === 'success') {
     diagnosticCard.classList.add('state-success');
     resultsBanner.classList.add('state-success');
+  } else if (status === 'warning') {
+    diagnosticCard.classList.add('state-warning');
+    resultsBanner.classList.add('state-warning');
   } else if (status === 'error') {
     diagnosticCard.classList.add('state-error');
     resultsBanner.classList.add('state-error');
@@ -231,11 +284,17 @@ async function compile() {
     await renderCompilationStages(compileResults);
     showProcessBreakdownPrompt();
 
-    // Show success or errors
-    if (compileResults.hasErrors) {
+    const health = getCompilationHealth(compileResults);
+
+    // Show success, warning, or errors
+    if (health.hasErrors) {
       updateStatus('error', 'Compilation completed with errors', 60);
       applyLifecycleState('warning');
       showNotification('Compilation completed with errors. Check the Semantics tab.', 'warning');
+    } else if (health.hasRecoveries || health.hasWarnings) {
+      updateStatus('warning', 'Compilation completed with recovery warnings', 90);
+      applyLifecycleState('warning');
+      showNotification('Compilation completed with recoveries. Review diagnostics for details.', 'warning');
     } else {
       updateStatus('success', 'Compilation completed successfully!', 100);
       applyLifecycleState('success');
@@ -284,6 +343,8 @@ function updateStatus(status, message, efficiency) {
     applyLifecycleState('compiling');
   } else if (status === 'success') {
     applyLifecycleState('success');
+  } else if (status === 'warning') {
+    applyLifecycleState('warning');
   } else if (status === 'error') {
     applyLifecycleState('error');
   }
@@ -294,6 +355,11 @@ function updateStatus(status, message, efficiency) {
     statusBadge.className = `${STATUS_BADGE_BASE} text-secondary bg-secondary-container`;
     efficiencyBar.className = 'bg-secondary h-2 rounded-full transition-all duration-300 shadow-[0_0_8px_rgba(0,107,27,0.3)]';
     statusText.textContent = 'SUCCESS';
+  } else if (status === 'warning') {
+    statusBadge.textContent = 'Warning';
+    statusBadge.className = `${STATUS_BADGE_BASE} text-[#9a5f00] bg-[#ffe2a0]`;
+    efficiencyBar.className = 'bg-[#d08a00] h-2 rounded-full transition-all duration-300';
+    statusText.textContent = 'WARNING';
   } else if (status === 'error') {
     statusBadge.textContent = 'Error';
     statusBadge.className = `${STATUS_BADGE_BASE} text-error bg-error-container`;
@@ -324,7 +390,7 @@ function updateLexerView(lexResult, lexExplanation) {
 
   // Show detailed status including unknowns
   const hasUnknowns = lexResult.unknownCount > 0;
-  const hasErrors = lexResult.diagnostics.some(d => d.severity === 'Error');
+  const hasErrors = lexResult.diagnostics.some(d => isErrorSeverity(d.severity));
 
   if (hasErrors || hasUnknowns) {
     document.getElementById('lexStatus').textContent = `Issues Found (${lexResult.unknownCount} unknown)`;
@@ -430,15 +496,15 @@ function updateParserView(parseResults, parseExplanations) {
           <span class="px-3 py-1 rounded-md bg-surface-container-high font-mono normal-case tracking-normal text-on-surface">${escapeHtml(result.actualPattern)}</span>
         </div>
         ${result.recoveries && result.recoveries.length > 0 ? `
-          <div class="mt-4 p-3 bg-tertiary-container/20 rounded text-sm">
+          <div class="mt-4 p-3 bg-[#ffe2a0]/35 rounded text-sm">
             <p class="font-bold mb-2">Recovery Actions:</p>
             <ul class="space-y-1">
               ${result.recoveries.map(r => `
                 <li>• ${r.strategy}: ${r.message}</li>
               `).join('')}
             </ul>
-            <div class="mt-3 p-3 bg-surface-container-lowest rounded border border-tertiary/25">
-              <p class="font-headline text-xs uppercase tracking-wider text-tertiary mb-2">Recovery Summary</p>
+            <div class="mt-3 p-3 bg-surface-container-lowest rounded border border-[#d08a00]/25">
+              <p class="font-headline text-xs uppercase tracking-wider text-[#9a5f00] mb-2">Recovery Summary</p>
               <p class="text-xs font-mono text-on-surface-variant">${escapeHtml(structureSummary)}</p>
               <p class="text-xs font-mono text-on-surface-variant">${escapeHtml(recoverySummary)}</p>
             </div>
@@ -453,18 +519,38 @@ function updateParserView(parseResults, parseExplanations) {
 
   // Update semantic status
   const hasErrors = parseResults.some(r => !r.ok);
-  if (hasErrors) {
+  const hasPanicRecoveries = parseResults.some(r =>
+    Array.isArray(r.recoveries) && r.recoveries.some(recovery => recovery.strategy === 'Panic-Mode')
+  );
+  const hasRecoveries = parseResults.some(r => Array.isArray(r.recoveries) && r.recoveries.length > 0);
+  const hasWarnings = parseResults.some(r => (r.diagnostics || []).some(d => isWarningSeverity(d.severity)));
+
+  if (hasErrors || hasPanicRecoveries) {
     semanticStatus.textContent = 'Analysis Complete';
     semanticInfo.innerHTML = `
-      <div class="text-center">
-        <p class="text-error text-sm font-bold">Syntax warnings found with recovery applied.</p>
-        <p class="text-error-dim text-xs mt-2">Review parser cards and adjust statement patterns.</p>
-        <div class="semantic-progress-wrap w-full h-2 bg-surface-container-high rounded-full mt-4">
-          <div id="semanticProgressFill" class="semantic-progress-fill h-full bg-error rounded-full"></div>
-        </div>
+      <div class="flex justify-between items-center mb-2">
+        <span class="text-error font-headline font-bold">Panic-Mode Recovery</span>
+        <span class="text-error font-label text-xs">60% RECOVERED</span>
+      </div>
+      <p class="text-error-dim text-xs mb-3">Major syntax issues were skipped to continue parsing. Review parser cards.</p>
+      <div class="semantic-progress-wrap w-full h-2 bg-on-background rounded-full overflow-hidden border border-error/30">
+        <div id="semanticProgressFill" class="semantic-progress-fill h-full bg-error"></div>
       </div>
     `;
-    animateSemanticProgress(62);
+    animateSemanticProgress(60);
+  } else if (hasRecoveries || hasWarnings) {
+    semanticStatus.textContent = 'Analysis Complete';
+    semanticInfo.innerHTML = `
+      <div class="flex justify-between items-center mb-2">
+        <span class="text-[#9a5f00] font-headline font-bold">Recovery Applied</span>
+        <span class="text-[#9a5f00] font-label text-xs">90% RECOVERED</span>
+      </div>
+      <p class="text-on-surface-variant text-xs mb-3">Parser auto-corrected minor syntax issues. Please review diagnostics.</p>
+      <div class="semantic-progress-wrap w-full h-2 bg-on-background rounded-full overflow-hidden border border-[#d08a00]/30">
+        <div id="semanticProgressFill" class="semantic-progress-fill h-full bg-[#d08a00]"></div>
+      </div>
+    `;
+    animateSemanticProgress(90);
   } else {
     semanticStatus.textContent = 'Analysis Complete';
     semanticInfo.innerHTML = `
@@ -494,12 +580,19 @@ function updateResultsView(results) {
   const classTableContent = document.getElementById('classTableContent');
   const semanticActions = document.getElementById('semanticActions');
 
+  const health = getCompilationHealth(results);
+
   // Update header
-  if (results.hasErrors) {
+  if (health.hasErrors) {
     resultIcon.className = 'w-16 h-16 bg-error-container rounded-full flex items-center justify-center border-4 border-white';
     resultIcon.innerHTML = '<span class="material-symbols-outlined text-error text-4xl" style="font-variation-settings: \'FILL\' 1;">error</span>';
     resultTitle.textContent = 'Compilation Completed With Errors';
     resultSubtitle.textContent = 'Review the diagnostics below to fix issues.';
+  } else if (health.hasRecoveries || health.hasWarnings) {
+    resultIcon.className = 'w-16 h-16 bg-[#ffe2a0] rounded-full flex items-center justify-center border-4 border-white';
+    resultIcon.innerHTML = '<span class="material-symbols-outlined text-[#9a5f00] text-4xl" style="font-variation-settings: \'FILL\' 1;">warning</span>';
+    resultTitle.textContent = 'Compilation Completed With Recovery Warnings';
+    resultSubtitle.textContent = 'The parser recovered minor issues. Please review diagnostics.';
   } else {
     resultIcon.className = 'w-16 h-16 bg-secondary-fixed rounded-full flex items-center justify-center border-4 border-white animate-pulse';
     resultIcon.innerHTML = '<span class="material-symbols-outlined text-on-secondary-fixed text-4xl" style="font-variation-settings: \'FILL\' 1;">verified</span>';
@@ -511,11 +604,7 @@ function updateResultsView(results) {
   const visibleTokens = results.lexResult.tokens.filter(token => token.type !== 'EOF');
   resultsTokenCount.textContent = visibleTokens.length;
 
-  const allDiagnostics = [
-    ...results.lexResult.diagnostics,
-    ...results.parseResults.flatMap(r => r.diagnostics),
-    ...results.semanticResults.flatMap(r => r.diagnostics)
-  ];
+  const allDiagnostics = health.allDiagnostics;
   resultsDiagCount.textContent = allDiagnostics.length;
 
   // Update diagnostics panel
@@ -532,20 +621,41 @@ function updateResultsView(results) {
       <h4 class="font-headline font-bold text-primary mb-4">Diagnostics</h4>
       <div class="space-y-3">
         ${allDiagnostics.map(diag => {
-          const severityColor = {
-            'Error': 'error',
-            'Warning': 'tertiary',
-            'Info': 'secondary'
-          }[diag.severity] || 'secondary';
+          const normalizedSeverity = normalizeSeverity(diag.severity);
+          const severityStyles = {
+            error: {
+              borderClass: 'border-error',
+              textClass: 'text-error',
+            },
+            warning: {
+              borderClass: 'border-[#d08a00]',
+              textClass: 'text-[#9a5f00]',
+            },
+            info: {
+              borderClass: 'border-secondary',
+              textClass: 'text-secondary',
+            }
+          }[normalizedSeverity] || {
+            borderClass: 'border-secondary',
+            textClass: 'text-secondary',
+          };
+          const severityLabel =
+            normalizedSeverity === 'error'
+              ? 'Error'
+              : normalizedSeverity === 'warning'
+                ? 'Warning'
+                : normalizedSeverity === 'info'
+                  ? 'Info'
+                  : String(diag.severity || 'Info');
 
           return `
-            <div class="diag-row p-4 bg-surface-container-lowest rounded-lg border-l-4 border-${severityColor}">
+            <div class="diag-row p-4 bg-surface-container-lowest rounded-lg border-l-4 ${severityStyles.borderClass}">
               <div class="flex items-start gap-3">
-                <span class="material-symbols-outlined text-${severityColor}">
-                  ${diag.severity === 'Error' ? 'error' : diag.severity === 'Warning' ? 'warning' : 'info'}
+                <span class="material-symbols-outlined ${severityStyles.textClass}">
+                  ${normalizedSeverity === 'error' ? 'error' : normalizedSeverity === 'warning' ? 'warning' : 'info'}
                 </span>
                 <div class="flex-1">
-                  <p class="font-bold text-sm">${diag.severity}</p>
+                  <p class="font-bold text-sm">${severityLabel}</p>
                   <p class="text-sm text-on-surface-variant">${escapeHtml(diag.message)}</p>
                   ${diag.span ? `<p class="text-xs text-outline mt-1">Position: ${diag.span.start}-${diag.span.end}</p>` : ''}
                 </div>

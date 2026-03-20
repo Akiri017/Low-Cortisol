@@ -107,6 +107,20 @@ function expressionToken(expr: Expression): Token {
   }
 }
 
+function expressionLabel(expr: Expression): string {
+  switch (expr.kind) {
+    case 'NumericLiteralExpr':
+    case 'IdentifierExpr':
+    case 'StringLiteralExpr':
+    case 'CharLiteralExpr':
+      return expr.token.lexeme;
+    case 'UnaryExpr':
+      return `${expr.operator}${expressionLabel(expr.operand)}`;
+    case 'BinaryExpr':
+      return `${expressionLabel(expr.left)} ${expr.operator} ${expressionLabel(expr.right)}`;
+  }
+}
+
 function evaluateNumericExpression(
   expr: Expression,
   table: SymbolTable,
@@ -270,20 +284,27 @@ export function analyzeSemantics(statement: Statement, symbolTable?: SymbolTable
       }
 
       case 'OutputStatement': {
-        const valueToken = s.value;
-        const valueType = inferValueType(valueToken);
+        const expr = s.expression;
         actions.push({
           kind: 'typeCheck',
-          message: `Output checks value '${valueToken.lexeme}' (${valueType}).`,
+          message: `Output checks expression '${expressionLabel(expr)}'.`,
         });
 
-        if (valueToken.type === TokenType.Identifier) {
-          const ref = table.get(valueToken.lexeme);
+        if (expr.kind === 'StringLiteralExpr' || expr.kind === 'CharLiteralExpr' || expr.kind === 'NumericLiteralExpr') {
+          return true;
+        }
+
+        if (expr.kind === 'IdentifierExpr') {
+          const ref = table.get(expr.token.lexeme);
           if (!ref) {
-            errorAt(valueToken, `Undeclared identifier '${valueToken.lexeme}' used in output statement.`);
+            errorAt(expr.token, `Undeclared identifier '${expr.token.lexeme}' used in output statement.`);
             return false;
           }
+          return true;
         }
+
+        const evaluated = evaluateNumericExpression(expr, table, errorAt);
+        if (evaluated === null) return false;
         return true;
       }
 

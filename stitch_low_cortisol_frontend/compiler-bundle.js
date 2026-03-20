@@ -388,7 +388,7 @@ var Parser = class {
       return { statement: this.parseAssignment(), expectedRule: "[DATATYPE] [IDENTIFIER] [ASSIGN_OPERATOR] [LITERAL] [DELIMITER]" };
     }
     if (first.type === "OUTPUT_KEYWORD" /* OutputKeyword */) {
-      return { statement: this.parseOutput(), expectedRule: "[OUTPUT_KEYWORD] [VALUE] [DELIMITER]" };
+      return { statement: this.parseOutput(), expectedRule: "[OUTPUT_KEYWORD] [EXPR] [DELIMITER]" };
     }
     if (first.type === "IF_KEYWORD" /* IfKeyword */) {
       return { statement: this.parseIf(), expectedRule: "[IF] [EXPR] [COMPARE_OP] [EXPR] [LBRACE] <statements> [RBRACE] [DELIMITER]" };
@@ -630,14 +630,19 @@ var Parser = class {
   parseOutput() {
     const kwTok = this.expect("OUTPUT_KEYWORD" /* OutputKeyword */, "an OUTPUT_KEYWORD");
     const valueTok = this.peek();
-    let value = null;
-    if (valueTok.type === "IDENTIFIER" /* Identifier */ || LITERAL_TYPES.has(valueTok.type)) {
-      value = this.consume();
+    let expression = null;
+    if (valueTok.type === "STRING_LITERAL" /* StringLiteral */) {
+      expression = { kind: "StringLiteralExpr", token: this.consume() };
+    } else if (valueTok.type === "CHAR_LITERAL" /* CharLiteral */) {
+      expression = { kind: "CharLiteralExpr", token: this.consume() };
     } else {
+      expression = this.parseNumericExpression();
+    }
+    if (!expression) {
       if (valueTok.type === "EOF" /* EOF */) {
-        this.errorAtEnd("Expected a value after OUTPUT_KEYWORD, but reached end of input.");
+        this.errorAtEnd("Expected a value or expression after OUTPUT_KEYWORD, but reached end of input.");
       } else {
-        this.errorAt(valueTok, `Expected a value after OUTPUT_KEYWORD, but found ${valueTok.type} ('${valueTok.lexeme}').`);
+        this.errorAt(valueTok, `Expected a value or expression after OUTPUT_KEYWORD, but found ${valueTok.type} ('${valueTok.lexeme}').`);
       }
     }
     const delimTok = this.peek();
@@ -659,7 +664,7 @@ var Parser = class {
         this.errorAt(delimTok, `Expected statement delimiter '.', but found ${delimTok.type} ('${delimTok.lexeme}').`);
       }
     }
-    if (!kwTok || !value || !delimOk) return null;
+    if (!kwTok || !expression || !delimOk) return null;
     const kwLex = kwTok.lexeme;
     const kw = kwLex;
     if (!OUTPUT_KEYWORDS.includes(kwLex)) {
@@ -669,7 +674,7 @@ var Parser = class {
     return {
       kind: "OutputStatement",
       keyword: kw,
-      value,
+      expression,
       delimiter: "."
     };
   }
@@ -962,6 +967,19 @@ function expressionToken(expr) {
       return expressionToken(expr.left);
   }
 }
+function expressionLabel(expr) {
+  switch (expr.kind) {
+    case "NumericLiteralExpr":
+    case "IdentifierExpr":
+    case "StringLiteralExpr":
+    case "CharLiteralExpr":
+      return expr.token.lexeme;
+    case "UnaryExpr":
+      return `${expr.operator}${expressionLabel(expr.operand)}`;
+    case "BinaryExpr":
+      return `${expressionLabel(expr.left)} ${expr.operator} ${expressionLabel(expr.right)}`;
+  }
+}
 function evaluateNumericExpression(expr, table, errorAt) {
   switch (expr.kind) {
     case "NumericLiteralExpr": {
@@ -1102,19 +1120,24 @@ function analyzeSemantics(statement, symbolTable, classTable) {
         return true;
       }
       case "OutputStatement": {
-        const valueToken = s.value;
-        const valueType = inferValueType(valueToken);
+        const expr = s.expression;
         actions.push({
           kind: "typeCheck",
-          message: `Output checks value '${valueToken.lexeme}' (${valueType}).`
+          message: `Output checks expression '${expressionLabel(expr)}'.`
         });
-        if (valueToken.type === "IDENTIFIER" /* Identifier */) {
-          const ref = table.get(valueToken.lexeme);
+        if (expr.kind === "StringLiteralExpr" || expr.kind === "CharLiteralExpr" || expr.kind === "NumericLiteralExpr") {
+          return true;
+        }
+        if (expr.kind === "IdentifierExpr") {
+          const ref = table.get(expr.token.lexeme);
           if (!ref) {
-            errorAt(valueToken, `Undeclared identifier '${valueToken.lexeme}' used in output statement.`);
+            errorAt(expr.token, `Undeclared identifier '${expr.token.lexeme}' used in output statement.`);
             return false;
           }
+          return true;
         }
+        const evaluated = evaluateNumericExpression(expr, table, errorAt);
+        if (evaluated === null) return false;
         return true;
       }
       case "IfStatement":

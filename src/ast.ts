@@ -30,7 +30,7 @@ export type AssignmentStatement = {
 export type OutputStatement = {
   kind: 'OutputStatement';
   keyword: OutputKeywordLexeme;
-  value: Token;
+  expression: Expression;
   delimiter: '.';
 };
 

@@ -147,7 +147,7 @@ class Parser {
     }
 
     if (first.type === TokenType.OutputKeyword) {
-      return { statement: this.parseOutput(), expectedRule: '[OUTPUT_KEYWORD] [VALUE] [DELIMITER]' };
+      return { statement: this.parseOutput(), expectedRule: '[OUTPUT_KEYWORD] [EXPR] [DELIMITER]' };
     }
 
     if (first.type === TokenType.IfKeyword) {
@@ -463,17 +463,20 @@ class Parser {
     const kwTok = this.expect(TokenType.OutputKeyword, 'an OUTPUT_KEYWORD');
 
     const valueTok = this.peek();
-    let value: Token | null = null;
-    if (
-      valueTok.type === TokenType.Identifier ||
-      LITERAL_TYPES.has(valueTok.type)
-    ) {
-      value = this.consume();
+    let expression: Expression | null = null;
+    if (valueTok.type === TokenType.StringLiteral) {
+      expression = { kind: 'StringLiteralExpr', token: this.consume() };
+    } else if (valueTok.type === TokenType.CharLiteral) {
+      expression = { kind: 'CharLiteralExpr', token: this.consume() };
     } else {
+      expression = this.parseNumericExpression();
+    }
+
+    if (!expression) {
       if (valueTok.type === TokenType.EOF) {
-        this.errorAtEnd('Expected a value after OUTPUT_KEYWORD, but reached end of input.');
+        this.errorAtEnd('Expected a value or expression after OUTPUT_KEYWORD, but reached end of input.');
       } else {
-        this.errorAt(valueTok, `Expected a value after OUTPUT_KEYWORD, but found ${valueTok.type} ('${valueTok.lexeme}').`);
+        this.errorAt(valueTok, `Expected a value or expression after OUTPUT_KEYWORD, but found ${valueTok.type} ('${valueTok.lexeme}').`);
       }
     }
 
@@ -497,7 +500,7 @@ class Parser {
       }
     }
 
-    if (!kwTok || !value || !delimOk) return null;
+    if (!kwTok || !expression || !delimOk) return null;
 
     const kwLex = kwTok.lexeme;
     const kw = kwLex as (typeof OUTPUT_KEYWORDS)[number];
@@ -509,7 +512,7 @@ class Parser {
     return {
       kind: 'OutputStatement',
       keyword: kw,
-      value,
+      expression,
       delimiter: '.',
     };
   }
