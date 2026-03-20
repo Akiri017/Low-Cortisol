@@ -199,9 +199,6 @@ letters season : "Spring".`,
     `decimal price : 99.99.
 int quantity : 5.
 letters message : "Hello Farmer!".`,
-    `bool isRaining : true.
-  bool sprinklerOn : 0.
-letter grade : 'A'.`,
     `doubleDecimal pi : 3.14159265359.`
   ];
   const randomExample = examples[Math.floor(Math.random() * examples.length)];
