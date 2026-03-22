@@ -51,6 +51,11 @@ npm start
 # Open http://localhost:8000
 ```
 
+### Running the Backend and frontend Together
+```bash
+npm run lowcortisol
+```
+
 ## 📖 Language Overview
 
 Low Cortisol is a simple, type-safe programming language with:
