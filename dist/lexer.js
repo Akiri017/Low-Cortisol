@@ -8,6 +8,7 @@ const isWhitespace = (ch) => ch === ' ' || ch === '\t' || ch === '\n' || ch === 
 const isDigit = (ch) => ch >= '0' && ch <= '9';
 const isIdentStart = (ch) => (ch >= 'A' && ch <= 'Z') || (ch >= 'a' && ch <= 'z') || ch === '_';
 const isIdentPart = (ch) => isIdentStart(ch) || isDigit(ch);
+const isDoubleQuoteDelimiter = (ch) => ch === '"' || ch === '\u201C' || ch === '\u201D';
 function makeToken(type, lexeme, start, end) {
     return { type, lexeme, span: { start, end } };
 }
@@ -176,7 +177,7 @@ function lex(source) {
             }
             continue;
         }
-        if (ch === '"') {
+        if (isDoubleQuoteDelimiter(ch)) {
             index += 1; // consume opening quote
             let closed = false;
             while (index < length) {
@@ -188,7 +189,7 @@ function lex(source) {
                         index += 1;
                     continue;
                 }
-                if (c === '"') {
+                if (isDoubleQuoteDelimiter(c)) {
                     index += 1; // consume closing quote
                     closed = true;
                     break;
