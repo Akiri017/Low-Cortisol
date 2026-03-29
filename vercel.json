@@ -1,0 +1,5 @@
+{
+  "buildCommand": "npm run build:browser",
+  "outputDirectory": "stitch_low_cortisol_frontend",
+  "installCommand": "npm install"
+}
